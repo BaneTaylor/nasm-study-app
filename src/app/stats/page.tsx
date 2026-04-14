@@ -354,6 +354,92 @@ export default function StatsPage() {
   // Study streak
   const streak = calculateStudyStreak(quizResults, flashcardProgress);
 
+  // --- Probability of Passing Calculation ---
+  const TOTAL_CHAPTERS = 20;
+
+  // 1. Score trend: compare last 10 vs first 10 quizzes
+  const sortedByDate = [...quizResults].sort((a, b) =>
+    (a.completed_at || "").localeCompare(b.completed_at || "")
+  );
+  const first10 = sortedByDate.slice(0, Math.min(10, sortedByDate.length));
+  const last10 = sortedByDate.slice(Math.max(0, sortedByDate.length - 10));
+  const first10Avg =
+    first10.length > 0
+      ? first10.reduce((s, q) => s + q.score, 0) / first10.length
+      : 0;
+  const last10Avg =
+    last10.length > 0
+      ? last10.reduce((s, q) => s + q.score, 0) / last10.length
+      : 0;
+  const scoreTrendDelta = last10Avg - first10Avg;
+  const scoreTrendLabel =
+    scoreTrendDelta > 3
+      ? "Improving"
+      : scoreTrendDelta < -3
+      ? "Declining"
+      : "Stable";
+
+  // 2. Chapter coverage
+  const chaptersWithQuiz = new Set(
+    quizResults.filter((q) => q.chapter !== null).map((q) => q.chapter)
+  );
+  const chapterCoverage = chaptersWithQuiz.size;
+  const coverageRatio = chapterCoverage / TOTAL_CHAPTERS;
+
+  // 3. Consistency: study days in last 2 weeks
+  const twoWeeksAgo = new Date(Date.now() - 14 * 86400000)
+    .toISOString()
+    .slice(0, 10);
+  const recentActivityDates = new Set<string>();
+  for (const qr of quizResults) {
+    if (qr.completed_at && qr.completed_at.slice(0, 10) >= twoWeeksAgo) {
+      recentActivityDates.add(qr.completed_at.slice(0, 10));
+    }
+  }
+  for (const fp of flashcardProgress) {
+    if (
+      fp.last_reviewed_at &&
+      fp.last_reviewed_at.slice(0, 10) >= twoWeeksAgo
+    ) {
+      recentActivityDates.add(fp.last_reviewed_at.slice(0, 10));
+    }
+  }
+  const consistencyDays = recentActivityDates.size;
+  const consistencyRatio = consistencyDays / 14;
+
+  // 4. Score vs passing threshold (70%)
+  const scoreVsThreshold = Math.min(overallMastery / 70, 1.3);
+
+  // Weighted probability calculation
+  const rawProbability =
+    scoreVsThreshold * 0.4 +
+    (coverageRatio > 0.5 ? coverageRatio : coverageRatio * 0.5) * 0.2 +
+    consistencyRatio * 0.15 +
+    (scoreTrendDelta > 0 ? Math.min(scoreTrendDelta / 20, 0.25) + 0.75 : Math.max(0.5 + scoreTrendDelta / 40, 0.25)) * 0.25;
+
+  const passingProbability = Math.max(
+    0,
+    Math.min(99, Math.round(rawProbability * 100))
+  );
+  const probColor =
+    passingProbability > 75
+      ? "text-emerald-400"
+      : passingProbability >= 50
+      ? "text-amber-400"
+      : "text-red-400";
+  const probBgColor =
+    passingProbability > 75
+      ? "from-emerald-900/40 to-emerald-800/20"
+      : passingProbability >= 50
+      ? "from-amber-900/40 to-amber-800/20"
+      : "from-red-900/40 to-red-800/20";
+  const probGlow =
+    passingProbability > 75
+      ? "shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+      : passingProbability >= 50
+      ? "shadow-[0_0_30px_rgba(245,158,11,0.3)]"
+      : "shadow-[0_0_30px_rgba(239,68,68,0.3)]";
+
   // Chapter mastery
   const chapterMastery = getChapterMastery(quizResults);
 
@@ -409,15 +495,25 @@ export default function StatsPage() {
               </span>
             )}
           </p>
+          <Link
+            href="/share"
+            className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-blue-500/30 text-blue-300 hover:text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+            </svg>
+            Share Progress
+          </Link>
         </div>
 
         {/* ===== TOP CARDS ROW ===== */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          {/* Exam Readiness */}
+          {/* Exam Readiness spans full width on sm+ */}
+          {/* Exam Readiness — Enhanced with Probability of Passing */}
           <div
-            className={`bg-gradient-to-br ${readiness.gradient} border border-gray-800/50 rounded-2xl p-5 ${readiness.glow} transition-shadow`}
+            className={`bg-gradient-to-br ${probBgColor} border border-gray-800/50 rounded-2xl p-5 ${probGlow} transition-shadow sm:col-span-3`}
           >
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <div
                 className="w-3 h-3 rounded-full animate-pulse"
                 style={{ backgroundColor: readiness.color }}
@@ -426,12 +522,62 @@ export default function StatsPage() {
                 Exam Readiness
               </p>
             </div>
-            <p className="text-2xl font-bold" style={{ color: readiness.color }}>
-              {readiness.label}
-            </p>
-            <p className="text-gray-500 text-xs mt-1">
-              Projected score: {projectedScore}%
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+              <div className="shrink-0">
+                <p className={`text-3xl sm:text-4xl font-bold ${probColor}`}>
+                  {passingProbability}%
+                </p>
+                <p className="text-gray-400 text-sm mt-1">
+                  chance of passing based on your current trajectory
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm flex-1">
+                <div className="flex items-center gap-2">
+                  <span className={scoreTrendDelta > 3 ? "text-emerald-400" : scoreTrendDelta < -3 ? "text-red-400" : "text-gray-400"}>
+                    {scoreTrendDelta > 3 ? "\u2191" : scoreTrendDelta < -3 ? "\u2193" : "\u2192"}
+                  </span>
+                  <span className="text-gray-300">
+                    Score trend:{" "}
+                    <span className={scoreTrendDelta > 3 ? "text-emerald-400" : scoreTrendDelta < -3 ? "text-red-400" : "text-gray-400"}>
+                      {scoreTrendLabel}
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={coverageRatio >= 0.7 ? "text-emerald-400" : coverageRatio >= 0.4 ? "text-amber-400" : "text-red-400"}>
+                    {coverageRatio >= 0.7 ? "\u2713" : "\u25CB"}
+                  </span>
+                  <span className="text-gray-300">
+                    Coverage:{" "}
+                    <span className={coverageRatio >= 0.7 ? "text-emerald-400" : coverageRatio >= 0.4 ? "text-amber-400" : "text-red-400"}>
+                      {chapterCoverage}/{TOTAL_CHAPTERS} chapters
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={consistencyRatio >= 0.7 ? "text-emerald-400" : consistencyRatio >= 0.4 ? "text-amber-400" : "text-red-400"}>
+                    {consistencyRatio >= 0.7 ? "\u2713" : "\u25CB"}
+                  </span>
+                  <span className="text-gray-300">
+                    Consistency:{" "}
+                    <span className={consistencyRatio >= 0.7 ? "text-emerald-400" : consistencyRatio >= 0.4 ? "text-amber-400" : "text-red-400"}>
+                      {consistencyDays}/14 days
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={overallMastery >= 70 ? "text-emerald-400" : overallMastery >= 50 ? "text-amber-400" : "text-red-400"}>
+                    {overallMastery >= 70 ? "\u2713" : "\u25CB"}
+                  </span>
+                  <span className="text-gray-300">
+                    Avg score:{" "}
+                    <span className={overallMastery >= 70 ? "text-emerald-400" : overallMastery >= 50 ? "text-amber-400" : "text-red-400"}>
+                      {overallMastery}% (need 70%)
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Days Until Exam */}

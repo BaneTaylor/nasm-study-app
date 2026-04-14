@@ -220,6 +220,47 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {/* Exam Mode Banner — visible within 14 days of exam */}
+        {daysUntilExam !== null && daysUntilExam <= 14 && (
+          <Link
+            href="/exam-mode"
+            className="group relative block mb-6 rounded-2xl p-px transition-all hover:scale-[1.01]"
+          >
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative bg-gray-900 rounded-[15px] p-5 sm:p-6 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="shrink-0 w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 6.75 6.75 0 009 4.5a.75.75 0 01.75.75c0 1.865.755 3.556 1.976 4.776A6.723 6.723 0 0015.362 5.214z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-0.5">
+                    {daysUntilExam <= 7 ? "Exam Mode Active" : "Exam Mode Available"}
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">
+                    {daysUntilExam === 0
+                      ? "Exam Day is Today!"
+                      : daysUntilExam === 1
+                      ? "1 Day Until Your Exam"
+                      : `${daysUntilExam} Days Until Your Exam`}
+                  </h2>
+                  <p className="text-gray-400 text-sm mt-0.5">
+                    {daysUntilExam <= 7
+                      ? "Final review tools, weak chapter targeting, and practice exams"
+                      : "Prepare with focused review tools and countdown timer"}
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+        )}
+
         {/* Continue Studying Hero Card */}
         <Link
           href={continueLink}

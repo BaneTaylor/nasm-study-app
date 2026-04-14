@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getChapter, chapters } from "@/lib/chapters/chapter-data";
 import TermCard from "./term-card";
+import AudioSection from "./audio-section";
 
 const chapterGradients = [
   "from-blue-500 to-cyan-500",
@@ -89,6 +90,15 @@ export default async function ChapterPage({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Listen to chapter */}
+        <div className="mb-8">
+          <AudioSection
+            chapterTitle={`Chapter ${chapter.number}: ${chapter.title}`}
+            summary={chapter.summary}
+            keyTerms={chapter.keyTerms}
+          />
         </div>
 
         {/* Summary */}

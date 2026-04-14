@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getNextReviewDate } from "@/lib/flashcards/spaced-repetition";
 import Link from "next/link";
+import AudioPlayer from "@/components/audio-player";
 
 type Flashcard = {
   id: string;
@@ -35,6 +36,20 @@ export default function FlashcardsPage() {
   useEffect(() => {
     loadCards();
   }, [selectedChapter]);
+
+  // Keyboard shortcut listener
+  useEffect(() => {
+    function handleShortcut(e: Event) {
+      const { action, value } = (e as CustomEvent).detail;
+      if (action === "flip") {
+        handleFlip();
+      } else if (action === "rate" && flipped) {
+        rateCard(value as "didnt_know" | "kinda_knew" | "nailed_it");
+      }
+    }
+    window.addEventListener("shortcut", handleShortcut);
+    return () => window.removeEventListener("shortcut", handleShortcut);
+  });
 
   async function loadCards() {
     setLoading(true);
@@ -282,9 +297,12 @@ export default function FlashcardsPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-widest text-blue-400/80">
                         Chapter {card.chapter}
                       </span>
-                      <span className="text-[10px] uppercase tracking-widest text-gray-600">
-                        Term
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-600">
+                          Term
+                        </span>
+                        <AudioPlayer text={card.term} />
+                      </div>
                     </div>
 
                     {/* Divider */}
@@ -320,9 +338,12 @@ export default function FlashcardsPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-widest text-green-400/80">
                         Chapter {card.chapter}
                       </span>
-                      <span className="text-[10px] uppercase tracking-widest text-gray-600">
-                        Definition
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-600">
+                          Definition
+                        </span>
+                        <AudioPlayer text={card.definition} />
+                      </div>
                     </div>
 
                     {/* Divider */}

@@ -21,6 +21,31 @@ type Answer = {
   time_spent_seconds: number;
 };
 
+type QuestionProgressRow = {
+  id: string;
+  question_id: string;
+  times_seen: number;
+  times_correct: number;
+  next_review_at: string | null;
+};
+
+/** Compute next review timestamp for a quiz question using spaced-repetition logic. */
+function getQuestionNextReview(wasCorrect: boolean, timesSeen: number): string {
+  const now = Date.now();
+  let intervalMinutes: number;
+
+  if (!wasCorrect) {
+    // Wrong answers come back sooner: 5 min, 30 min, 2 hours
+    intervalMinutes = timesSeen <= 1 ? 5 : timesSeen <= 2 ? 30 : 120;
+  } else {
+    // Correct answers space out: 1 day, 3 days, 7 days, 14 days, 30 days
+    const intervals = [1440, 4320, 10080, 20160, 43200];
+    intervalMinutes = intervals[Math.min(timesSeen, intervals.length - 1)];
+  }
+
+  return new Date(now + intervalMinutes * 60 * 1000).toISOString();
+}
+
 const LETTER_BADGES = ["A", "B", "C", "D"];
 const LETTER_COLORS_DEFAULT = [
   "bg-blue-600/20 text-blue-400 border-blue-500/30",
@@ -107,6 +132,9 @@ function QuizSession() {
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [answerAnimating, setAnswerAnimating] = useState(false);
+  const [progressMap, setProgressMap] = useState<
+    Map<string, QuestionProgressRow>
+  >(new Map());
   const supabase = createClient();
 
   const isExamMode = mode === "exam_simulation";
@@ -116,6 +144,22 @@ function QuizSession() {
     loadQuestions();
   }, []);
 
+  // Keyboard shortcut listener
+  useEffect(() => {
+    function handleShortcut(e: Event) {
+      const { action, value } = (e as CustomEvent).detail;
+      if (action === "select_answer" && typeof value === "number") {
+        if (value >= 0 && value < (questions[currentIndex]?.options.length ?? 0)) {
+          selectAnswer(value);
+        }
+      } else if (action === "next_question" && selected !== null && !answerAnimating) {
+        nextQuestion();
+      }
+    }
+    window.addEventListener("shortcut", handleShortcut);
+    return () => window.removeEventListener("shortcut", handleShortcut);
+  });
+
   useEffect(() => {
     if (!isExamMode || quizComplete) return;
     const interval = setInterval(() => setTimerSeconds((s) => s + 1), 1000);
@@ -124,6 +168,10 @@ function QuizSession() {
 
   async function loadQuestions() {
     setLoading(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     let query = supabase.from("questions").select("*");
     if (mode === "chapter" && chapterParam) {
@@ -136,8 +184,48 @@ function QuizSession() {
     const { data } = await query;
     let qs = (data || []) as Question[];
 
-    // Shuffle
-    qs = qs.sort(() => Math.random() - 0.5);
+    // Load question_progress for spaced repetition sorting
+    let progMap = new Map<string, QuestionProgressRow>();
+    if (user) {
+      const { data: progress } = await supabase
+        .from("question_progress")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (progress) {
+        progress.forEach((p: QuestionProgressRow) => {
+          progMap.set(p.question_id, p);
+        });
+      }
+    }
+    setProgressMap(progMap);
+
+    // For mixed / weak_chapters modes, use spaced repetition ordering:
+    // 1. Never seen first, 2. Due for review (next_review_at <= now), 3. Random
+    if (mode === "mixed" || mode === "weak_chapters") {
+      const now = new Date();
+      qs.sort((a, b) => {
+        const aProg = progMap.get(a.id);
+        const bProg = progMap.get(b.id);
+
+        const aNeverSeen = !aProg;
+        const bNeverSeen = !bProg;
+        if (aNeverSeen !== bNeverSeen) return aNeverSeen ? -1 : 1;
+
+        if (aProg && bProg) {
+          const aDue =
+            !aProg.next_review_at || new Date(aProg.next_review_at) <= now;
+          const bDue =
+            !bProg.next_review_at || new Date(bProg.next_review_at) <= now;
+          if (aDue !== bDue) return aDue ? -1 : 1;
+        }
+
+        return Math.random() - 0.5;
+      });
+    } else {
+      // Shuffle for other modes
+      qs = qs.sort(() => Math.random() - 0.5);
+    }
 
     // Limit based on mode
     if (isExamMode) qs = qs.slice(0, 20);
@@ -148,6 +236,55 @@ function QuizSession() {
     setQuestions(qs);
     setQuestionStartTime(Date.now());
     setLoading(false);
+  }
+
+  async function upsertQuestionProgress(
+    questionId: string,
+    wasCorrect: boolean
+  ) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const existing = progressMap.get(questionId);
+    const timesSeen = (existing?.times_seen || 0) + 1;
+    const timesCorrect = (existing?.times_correct || 0) + (wasCorrect ? 1 : 0);
+    const nextReview = getQuestionNextReview(wasCorrect, timesSeen);
+
+    if (existing) {
+      await supabase
+        .from("question_progress")
+        .update({
+          times_seen: timesSeen,
+          times_correct: timesCorrect,
+          last_seen_at: new Date().toISOString(),
+          next_review_at: nextReview,
+        })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("question_progress").insert({
+        user_id: user.id,
+        question_id: questionId,
+        times_seen: timesSeen,
+        times_correct: timesCorrect,
+        last_seen_at: new Date().toISOString(),
+        next_review_at: nextReview,
+      });
+    }
+
+    // Update local map
+    setProgressMap((prev) => {
+      const next = new Map(prev);
+      next.set(questionId, {
+        id: existing?.id || "pending",
+        question_id: questionId,
+        times_seen: timesSeen,
+        times_correct: timesCorrect,
+        next_review_at: nextReview,
+      });
+      return next;
+    });
   }
 
   function selectAnswer(index: number) {
@@ -167,6 +304,9 @@ function QuizSession() {
         time_spent_seconds: timeSpent,
       },
     ]);
+
+    // Upsert question progress for spaced repetition
+    upsertQuestionProgress(question.id, index === question.correct_answer);
 
     // Brief animation before showing explanation or advancing
     setTimeout(() => {

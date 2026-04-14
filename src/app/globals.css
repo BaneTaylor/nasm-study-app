@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +20,47 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Light mode overrides for common dark-hardcoded classes */
+.light {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Light mode utility overrides — applied globally when .light is on <html> */
+.light .bg-gray-950 { background-color: #f9fafb !important; }
+.light .bg-gray-900 { background-color: #ffffff !important; }
+.light .bg-gray-800 { background-color: #f3f4f6 !important; }
+.light .bg-gray-800\/50 { background-color: rgb(243 244 246 / 0.5) !important; }
+.light .border-gray-800 { border-color: #e5e7eb !important; }
+.light .border-gray-800\/60 { border-color: rgb(229 231 235 / 0.6) !important; }
+.light .border-gray-700 { border-color: #d1d5db !important; }
+.light .border-gray-600 { border-color: #d1d5db !important; }
+.light .text-white { color: #111827 !important; }
+.light .text-gray-200 { color: #374151 !important; }
+.light .text-gray-300 { color: #4b5563 !important; }
+.light .text-gray-400 { color: #6b7280 !important; }
+.light .text-gray-500 { color: #9ca3af !important; }
+.light .text-gray-600 { color: #9ca3af !important; }
+.light .hover\:text-white:hover { color: #111827 !important; }
+.light .hover\:text-gray-300:hover { color: #374151 !important; }
+.light .hover\:bg-gray-700:hover { background-color: #e5e7eb !important; }
+.light .hover\:bg-gray-800\/50:hover { background-color: rgb(243 244 246 / 0.5) !important; }
+.light .hover\:border-gray-600:hover { border-color: #9ca3af !important; }
+
+/* Light mode gradients */
+.light .from-blue-600\/20 { --tw-gradient-from: rgb(37 99 235 / 0.1) !important; }
+.light .via-gray-900 { --tw-gradient-via: #ffffff !important; }
+.light .to-gray-900 { --tw-gradient-to: #ffffff !important; }
+.light .from-green-600\/15 { --tw-gradient-from: rgb(22 163 74 / 0.08) !important; }
+
+/* Light mode shadows */
+.light .shadow-2xl { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.08) !important; }
+
+/* Nav bar light mode */
+.light nav.fixed { background-color: #ffffff !important; border-color: #e5e7eb !important; }
