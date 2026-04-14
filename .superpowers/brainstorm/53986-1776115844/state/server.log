@@ -1,0 +1,2 @@
+{"type":"server-started","port":63451,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:63451","screen_dir":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/53986-1776115844/content","state_dir":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/53986-1776115844/state"}
+{"type":"server-stopped","reason":"idle timeout"}

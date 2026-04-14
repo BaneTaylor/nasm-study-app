@@ -1,0 +1,105 @@
+<h2>Architecture Overview</h2>
+<p class="subtitle">How the app fits together</p>
+
+<div class="mockup">
+  <div class="mockup-header">System Architecture</div>
+  <div class="mockup-body" style="padding: 24px; font-family: monospace; font-size: 14px; line-height: 2;">
+    <div style="display: flex; justify-content: space-around; align-items: start; flex-wrap: wrap; gap: 24px;">
+
+      <div style="text-align: center; flex: 1; min-width: 200px;">
+        <div style="background: #3b82f6; color: white; padding: 16px; border-radius: 12px; margin-bottom: 8px;">
+          <strong>Next.js Frontend</strong>
+        </div>
+        <div style="font-size: 12px; color: #888;">
+          Pages & Components<br>
+          Flashcards UI<br>
+          Quiz Engine<br>
+          Progress Dashboard<br>
+          Study Scheduler
+        </div>
+      </div>
+
+      <div style="text-align: center; flex: 0; font-size: 28px; padding-top: 16px;">
+        &harr;
+      </div>
+
+      <div style="text-align: center; flex: 1; min-width: 200px;">
+        <div style="background: #10b981; color: white; padding: 16px; border-radius: 12px; margin-bottom: 8px;">
+          <strong>Supabase</strong>
+        </div>
+        <div style="font-size: 12px; color: #888;">
+          Auth (login/signup)<br>
+          PostgreSQL Database<br>
+          Row-Level Security<br>
+          Realtime subscriptions
+        </div>
+      </div>
+
+      <div style="text-align: center; flex: 0; font-size: 28px; padding-top: 16px;">
+        &rarr;
+      </div>
+
+      <div style="text-align: center; flex: 1; min-width: 200px;">
+        <div style="background: #8b5cf6; color: white; padding: 16px; border-radius: 12px; margin-bottom: 8px;">
+          <strong>Vercel</strong>
+        </div>
+        <div style="font-size: 12px; color: #888;">
+          Hosting<br>
+          Auto-deploy from GitHub<br>
+          Free SSL<br>
+          CDN
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 32px;">
+  <h3>Database Tables</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 16px;">
+
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="color: #3b82f6; font-weight: bold; margin-bottom: 8px;">users</div>
+      <div style="font-size: 13px; color: #aaa; line-height: 1.8;">
+        id<br>email<br>display_name<br>created_at
+      </div>
+    </div>
+
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="color: #10b981; font-weight: bold; margin-bottom: 8px;">flashcards</div>
+      <div style="font-size: 13px; color: #aaa; line-height: 1.8;">
+        id<br>chapter<br>term<br>definition<br>created_by
+      </div>
+    </div>
+
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="color: #f59e0b; font-weight: bold; margin-bottom: 8px;">questions</div>
+      <div style="font-size: 13px; color: #aaa; line-height: 1.8;">
+        id<br>chapter<br>question<br>options (JSON)<br>correct_answer<br>explanation
+      </div>
+    </div>
+
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="color: #ef4444; font-weight: bold; margin-bottom: 8px;">quiz_results</div>
+      <div style="font-size: 13px; color: #aaa; line-height: 1.8;">
+        id<br>user_id<br>chapter<br>score<br>answers (JSON)<br>taken_at
+      </div>
+    </div>
+
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="color: #ec4899; font-weight: bold; margin-bottom: 8px;">study_sessions</div>
+      <div style="font-size: 13px; color: #aaa; line-height: 1.8;">
+        id<br>user_id<br>scheduled_at<br>chapter<br>completed<br>type
+      </div>
+    </div>
+
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="color: #06b6d4; font-weight: bold; margin-bottom: 8px;">chapter_summaries</div>
+      <div style="font-size: 13px; color: #aaa; line-height: 1.8;">
+        id<br>chapter_number<br>title<br>content (markdown)<br>key_points (JSON)
+      </div>
+    </div>
+
+  </div>
+</div>

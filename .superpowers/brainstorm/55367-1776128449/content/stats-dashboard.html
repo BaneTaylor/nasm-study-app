@@ -1,0 +1,213 @@
+<h2>Stats & Analytics Dashboard</h2>
+<p class="subtitle">Everything you need to know about where you stand</p>
+
+<!-- Top Row: Big Numbers -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px;">
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center;">
+    <div style="font-size: 42px; font-weight: bold; color: #10b981;">67%</div>
+    <div style="color: #aaa; font-size: 13px; margin-top: 4px;">Overall Mastery</div>
+    <div style="color: #666; font-size: 11px; margin-top: 2px;">Based on quiz scores across all chapters</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center;">
+    <div style="font-size: 42px; font-weight: bold; color: #f59e0b;">On Track</div>
+    <div style="color: #aaa; font-size: 13px; margin-top: 4px;">Exam Readiness</div>
+    <div style="color: #666; font-size: 11px; margin-top: 2px;">Projected to hit 85% by exam date</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center;">
+    <div style="font-size: 42px; font-weight: bold; color: #3b82f6;">42</div>
+    <div style="color: #aaa; font-size: 13px; margin-top: 4px;">Days Until Exam</div>
+    <div style="color: #666; font-size: 11px; margin-top: 2px;">June 1, 2026</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center;">
+    <div style="font-size: 42px; font-weight: bold; color: #8b5cf6;">12</div>
+    <div style="color: #aaa; font-size: 13px; margin-top: 4px;">Day Streak</div>
+    <div style="color: #666; font-size: 11px; margin-top: 2px;">Longest: 18 days</div>
+  </div>
+</div>
+
+<!-- Exam Readiness Projection -->
+<h3>Exam Readiness Projection</h3>
+<p class="subtitle">Are you on pace to pass? NASM passing score is ~70%</p>
+<div class="mockup" style="margin-top: 12px;">
+  <div class="mockup-header">Mastery Over Time → Exam Date</div>
+  <div class="mockup-body" style="padding: 20px;">
+    <div style="position: relative; height: 200px; border-left: 2px solid #444; border-bottom: 2px solid #444;">
+      <!-- Pass line -->
+      <div style="position: absolute; bottom: 70%; left: 0; right: 0; border-top: 2px dashed #10b981; z-index: 1;">
+        <span style="position: absolute; right: 0; top: -20px; color: #10b981; font-size: 11px;">70% Pass Line</span>
+      </div>
+      <!-- Current line -->
+      <div style="position: absolute; bottom: 0; left: 5%; width: 55%; height: 67%; background: linear-gradient(to right, #3b82f6, #8b5cf6); opacity: 0.3; border-radius: 0 8px 0 0;"></div>
+      <div style="position: absolute; bottom: 67%; left: 60%; color: #8b5cf6; font-size: 12px; font-weight: bold;">You: 67% ←</div>
+      <!-- Projected line -->
+      <div style="position: absolute; bottom: 67%; left: 60%; width: 35%; border-top: 2px dashed #f59e0b;"></div>
+      <div style="position: absolute; bottom: 85%; right: 5%; color: #f59e0b; font-size: 12px;">Projected: 85%</div>
+      <!-- Labels -->
+      <div style="position: absolute; bottom: -24px; left: 5%; color: #666; font-size: 11px;">Week 1</div>
+      <div style="position: absolute; bottom: -24px; left: 55%; color: #8b5cf6; font-size: 11px;">Today</div>
+      <div style="position: absolute; bottom: -24px; right: 2%; color: #f59e0b; font-size: 11px;">Exam Day</div>
+    </div>
+    <div style="margin-top: 32px; padding: 12px; background: #0a2e1a; border: 1px solid #10b981; border-radius: 8px; font-size: 13px; color: #10b981;">
+      ✓ At your current pace (8.2 hrs/week, 76% quiz avg), you're projected to score ~85% by exam day. You're on track.
+    </div>
+  </div>
+</div>
+
+<!-- Chapter Mastery Breakdown -->
+<h3 style="margin-top: 32px;">Chapter Mastery Breakdown</h3>
+<p class="subtitle">Percentage mastered per chapter — red chapters need attention</p>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 180px; font-size: 13px; color: #ccc; text-align: right;">Ch 1: Science of PT</div>
+    <div style="flex: 1; background: #1a1a2e; border-radius: 4px; height: 24px; overflow: hidden;">
+      <div style="width: 92%; height: 100%; background: #10b981; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white;">92%</div>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 180px; font-size: 13px; color: #ccc; text-align: right;">Ch 2: Anatomy</div>
+    <div style="flex: 1; background: #1a1a2e; border-radius: 4px; height: 24px; overflow: hidden;">
+      <div style="width: 78%; height: 100%; background: #3b82f6; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white;">78%</div>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 180px; font-size: 13px; color: #ccc; text-align: right;">Ch 5: Human Movement</div>
+    <div style="flex: 1; background: #1a1a2e; border-radius: 4px; height: 24px; overflow: hidden;">
+      <div style="width: 34%; height: 100%; background: #ef4444; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white;">34%</div>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 180px; font-size: 13px; color: #ccc; text-align: right;">Ch 12: OPT Model</div>
+    <div style="flex: 1; background: #1a1a2e; border-radius: 4px; height: 24px; overflow: hidden;">
+      <div style="width: 41%; height: 100%; background: #ef4444; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white;">41%</div>
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 180px; font-size: 13px; color: #ccc; text-align: right;">Ch 14: Nutrition</div>
+    <div style="flex: 1; background: #1a1a2e; border-radius: 4px; height: 24px; overflow: hidden;">
+      <div style="width: 55%; height: 100%; background: #f59e0b; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white;">55%</div>
+    </div>
+  </div>
+  <div style="font-size: 12px; color: #666; margin-top: 4px; text-align: right;">+ 15 more chapters...</div>
+</div>
+
+<!-- Learning Style Effectiveness -->
+<h3 style="margin-top: 32px;">Learning Style Effectiveness</h3>
+<p class="subtitle">Which study methods are working best for you over time</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 12px;">
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: #10b981; font-weight: bold;">Active Recall</span>
+      <span style="color: #10b981; font-size: 24px; font-weight: bold;">↑ 89%</span>
+    </div>
+    <div style="font-size: 12px; color: #888; margin-top: 8px;">Quiz-based study retains best for you. +12% improvement since week 3.</div>
+    <div style="margin-top: 8px; height: 4px; background: #333; border-radius: 2px;">
+      <div style="width: 89%; height: 100%; background: #10b981; border-radius: 2px;"></div>
+    </div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: #3b82f6; font-weight: bold;">Visual</span>
+      <span style="color: #3b82f6; font-size: 24px; font-weight: bold;">↑ 74%</span>
+    </div>
+    <div style="font-size: 12px; color: #888; margin-top: 8px;">Diagrams and charts work well. Especially effective for anatomy chapters.</div>
+    <div style="margin-top: 8px; height: 4px; background: #333; border-radius: 2px;">
+      <div style="width: 74%; height: 100%; background: #3b82f6; border-radius: 2px;"></div>
+    </div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: #f59e0b; font-weight: bold;">Reading/Writing</span>
+      <span style="color: #f59e0b; font-size: 24px; font-weight: bold;">→ 61%</span>
+    </div>
+    <div style="font-size: 12px; color: #888; margin-top: 8px;">Moderate retention from summaries. Consider mixing with quizzes more.</div>
+    <div style="margin-top: 8px; height: 4px; background: #333; border-radius: 2px;">
+      <div style="width: 61%; height: 100%; background: #f59e0b; border-radius: 2px;"></div>
+    </div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: #ec4899; font-weight: bold;">Practical</span>
+      <span style="color: #ec4899; font-size: 24px; font-weight: bold;">↑ 71%</span>
+    </div>
+    <div style="font-size: 12px; color: #888; margin-top: 8px;">Case studies are clicking. Program design exercises helping with OPT chapters.</div>
+    <div style="margin-top: 8px; height: 4px; background: #333; border-radius: 2px;">
+      <div style="width: 71%; height: 100%; background: #ec4899; border-radius: 2px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Additional Stats -->
+<h3 style="margin-top: 32px;">Study Habits & Performance</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Total Study Time</div>
+    <div style="color: #fff; font-size: 28px; font-weight: bold; margin-top: 4px;">47.5 hrs</div>
+    <div style="color: #888; font-size: 12px;">Avg 8.2 hrs/week</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Quizzes Taken</div>
+    <div style="color: #fff; font-size: 28px; font-weight: bold; margin-top: 4px;">83</div>
+    <div style="color: #888; font-size: 12px;">Avg score: 76%</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Flashcards Reviewed</div>
+    <div style="color: #fff; font-size: 28px; font-weight: bold; margin-top: 4px;">612</div>
+    <div style="color: #888; font-size: 12px;">82% recall rate</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Best Study Time</div>
+    <div style="color: #fff; font-size: 28px; font-weight: bold; margin-top: 4px;">9 PM</div>
+    <div style="color: #888; font-size: 12px;">Highest scores in evening sessions</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Weakest Topic</div>
+    <div style="color: #ef4444; font-size: 28px; font-weight: bold; margin-top: 4px;">Ch 5</div>
+    <div style="color: #888; font-size: 12px;">Human Movement Science — 34%</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Most Improved</div>
+    <div style="color: #10b981; font-size: 28px; font-weight: bold; margin-top: 4px;">Ch 8</div>
+    <div style="color: #888; font-size: 12px;">Cardio Training — +31% in 2 weeks</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Plan Adherence</div>
+    <div style="color: #fff; font-size: 28px; font-weight: bold; margin-top: 4px;">88%</div>
+    <div style="color: #888; font-size: 12px;">Sessions completed vs. planned</div>
+  </div>
+
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+    <div style="color: #aaa; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Practice Exams</div>
+    <div style="color: #fff; font-size: 28px; font-weight: bold; margin-top: 4px;">2 / 3</div>
+    <div style="color: #888; font-size: 12px;">Last score: 74% (passing)</div>
+  </div>
+</div>
+
+<!-- Smart Alerts -->
+<h3 style="margin-top: 32px;">Smart Alerts</h3>
+<p class="subtitle">The app proactively tells you what needs attention</p>
+<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+  <div style="background: #2d1215; border: 1px solid #ef4444; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #fca5a5;">
+    <strong>⚠ Ch 5 — Human Movement Science</strong> is below 40%. Your plan has been adjusted to add 2 extra quiz sessions this week.
+  </div>
+  <div style="background: #1a2e0a; border: 1px solid #10b981; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #86efac;">
+    <strong>✓ Ch 1 — Science of PT</strong> mastered at 92%. Moved to maintenance mode (1 review/week).
+  </div>
+  <div style="background: #2e1a0a; border: 1px solid #f59e0b; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #fde68a;">
+    <strong>💡 Study tip:</strong> Your quiz scores are 18% higher during evening sessions. Consider shifting more study time to after 8 PM.
+  </div>
+  <div style="background: #0a1a2e; border: 1px solid #3b82f6; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #93c5fd;">
+    <strong>📊 Weekly summary:</strong> You studied 9.1 hrs this week (+0.9 above target). Quiz avg improved from 73% → 76%.
+  </div>
+</div>

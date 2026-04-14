@@ -1,0 +1,10 @@
+{"type":"server-started","port":56838,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:56838","screen_dir":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content","state_dir":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/state"}
+{"type":"screen-added","file":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content/platform.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Web App\n      Runs in your browser, no install needed. Works on any device — phone, tablet, laptop. Easiest to build and share.","choice":"a","id":null,"timestamp":1776128515625}
+{"source":"user-event","type":"click","text":"A\n    \n      Web App\n      Runs in your browser, no install needed. Works on any device — phone, tablet, laptop. Easiest to build and share.","choice":"a","id":null,"timestamp":1776128517282}
+{"type":"screen-added","file":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content/architecture.html"}
+{"type":"screen-added","file":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content/onboarding-flow.html"}
+{"type":"screen-added","file":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content/stats-dashboard.html"}
+{"type":"screen-added","file":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content/study-features.html"}
+{"type":"screen-added","file":"/Users/gavintaylor/nasm-study-app/.superpowers/brainstorm/55367-1776128449/content/fun-facts.html"}
+{"type":"server-stopped","reason":"idle timeout"}
