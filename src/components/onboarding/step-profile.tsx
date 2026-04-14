@@ -14,10 +14,12 @@ export default function StepProfile({
   onComplete: (data: ProfileData) => void;
 }) {
   const [examDate, setExamDate] = useState("");
+  const [noExamDate, setNoExamDate] = useState(false);
   const [hoursPerWeek, setHoursPerWeek] = useState(8);
   const [experience, setExperience] = useState("");
 
-  const canContinue = examDate && experience;
+  const hasDate = examDate || noExamDate;
+  const canContinue = hasDate && experience;
 
   return (
     <div className="max-w-lg mx-auto">
@@ -31,13 +33,28 @@ export default function StepProfile({
           <label className="block text-sm text-gray-300 mb-2">
             When is your exam date?
           </label>
-          <input
-            type="date"
-            value={examDate}
-            onChange={(e) => setExamDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-          />
+          {!noExamDate && (
+            <input
+              type="date"
+              value={examDate}
+              onChange={(e) => setExamDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+            />
+          )}
+          <button
+            onClick={() => {
+              setNoExamDate(!noExamDate);
+              if (!noExamDate) setExamDate("");
+            }}
+            className={`mt-2 text-sm px-3 py-2 rounded-lg border transition-colors ${
+              noExamDate
+                ? "border-blue-500 bg-blue-600/20 text-blue-400"
+                : "border-gray-700 text-gray-500 hover:border-gray-500"
+            }`}
+          >
+            I don&apos;t know yet
+          </button>
         </div>
 
         <div>
@@ -86,7 +103,14 @@ export default function StepProfile({
       </div>
 
       <button
-        onClick={() => onComplete({ examDate, hoursPerWeek, experience })}
+        onClick={() => {
+          const finalDate = examDate || (() => {
+            const d = new Date();
+            d.setDate(d.getDate() + 84); // default 12 weeks out
+            return d.toISOString().split("T")[0];
+          })();
+          onComplete({ examDate: finalDate, hoursPerWeek, experience });
+        }}
         disabled={!canContinue}
         className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
       >
