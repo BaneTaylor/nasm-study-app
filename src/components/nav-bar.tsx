@@ -11,6 +11,7 @@ const navItems = [
   { href: "/chapters", label: "Chapters", icon: "📖" },
   { href: "/schedule", label: "Schedule", icon: "📅" },
   { href: "/stats", label: "Stats", icon: "📊" },
+  { href: "/coach", label: "Coach", icon: "🤖" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
 ];
 

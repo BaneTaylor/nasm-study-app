@@ -1,8 +1,10 @@
 import Link from "next/link";
+import OnboardingIntro from "@/components/onboarding-intro";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col">
+      <OnboardingIntro />
       <nav className="flex justify-between items-center px-6 py-4 max-w-6xl mx-auto w-full">
         <span className="text-xl font-bold text-white">NASM Study</span>
         <div className="flex gap-3">
