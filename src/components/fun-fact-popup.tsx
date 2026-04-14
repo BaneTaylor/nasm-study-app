@@ -62,18 +62,33 @@ export default function FunFactPopup() {
   }, []);
 
   useEffect(() => {
+    // Only show a fun fact if enough time has passed and random chance hits
+    const lastShown = localStorage.getItem("funFact_lastShown");
+    const cooldownMs = 3 * 60 * 60 * 1000; // 3 hours between fun facts
+    const now = Date.now();
+
+    if (lastShown && now - parseInt(lastShown) < cooldownMs) {
+      return; // Too soon, skip
+    }
+
+    // 30% chance of showing even when cooldown has passed
+    if (Math.random() > 0.3) {
+      return; // Not this time
+    }
+
     loadFact();
   }, [loadFact]);
 
-  // Show popup after a 2-second delay once a fact is loaded
+  // Show popup after a delay once a fact is loaded
   useEffect(() => {
     if (!fact) return;
-    const timer = setTimeout(() => setShow(true), 2000);
+    const timer = setTimeout(() => setShow(true), 3000);
     return () => clearTimeout(timer);
   }, [fact]);
 
   const handleDismiss = async () => {
     setDismissing(true);
+    localStorage.setItem("funFact_lastShown", Date.now().toString());
 
     if (fact) {
       const supabase = createClient();
