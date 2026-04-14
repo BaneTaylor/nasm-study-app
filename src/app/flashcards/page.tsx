@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getNextReviewDate } from "@/lib/flashcards/spaced-repetition";
 import { seedFlashcards } from "@/lib/flashcards/seed-data";
+import { seedFlashcards2 } from "@/lib/flashcards/seed-data-2";
 import Link from "next/link";
 
 type Flashcard = {
@@ -50,8 +51,9 @@ export default function FlashcardsPage() {
       .eq("is_default", true);
 
     if (count === 0) {
+      const allCards = [...seedFlashcards, ...seedFlashcards2];
       await supabase.from("flashcards").insert(
-        seedFlashcards.map((f) => ({
+        allCards.map((f) => ({
           chapter: f.chapter,
           term: f.term,
           definition: f.definition,

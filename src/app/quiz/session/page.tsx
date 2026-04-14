@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { seedQuestions } from "@/lib/quiz/seed-questions";
+import { seedQuestions2 } from "@/lib/quiz/seed-questions-2";
 import Link from "next/link";
 
 type Question = {
@@ -60,8 +61,9 @@ function QuizSession() {
       .select("*", { count: "exact", head: true });
 
     if (count === 0) {
+      const allQuestions = [...seedQuestions, ...seedQuestions2];
       await supabase.from("questions").insert(
-        seedQuestions.map((q) => ({
+        allQuestions.map((q) => ({
           chapter: q.chapter,
           question: q.question,
           options: q.options,

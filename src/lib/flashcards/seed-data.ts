@@ -1,61 +1,222 @@
-// Starter flashcards for each chapter — enough to get studying immediately
-// Full content seeding happens in Phase 9
+// Flashcards for NASM CPT 7th Edition — Chapters 1-19
+// Chapters 1-10 have 15-20 cards each; later chapters retain original starter cards
 
 export const seedFlashcards = [
-  // Chapter 1
+  // ─── Chapter 1: The Modern State of Health and Fitness ───
   { chapter: 1, term: "Evidence-based practice", definition: "Using scientific evidence, clinical experience, and client values to guide training decisions." },
   { chapter: 1, term: "Integrated training", definition: "A comprehensive approach that combines all forms of training (flexibility, core, balance, reactive, resistance, cardio) in a progressive manner." },
+  { chapter: 1, term: "Kinetic chain", definition: "The concept that the human body is a linked system of interdependent segments (nervous, skeletal, and muscular systems) that work together to produce movement." },
+  { chapter: 1, term: "Deconditioned", definition: "A state of lost physical fitness, which may include decreased cardiovascular endurance, muscular strength, and flexibility." },
+  { chapter: 1, term: "Obesity", definition: "A condition of excess body fat; defined as a BMI of 30 or higher. Associated with increased risk of heart disease, diabetes, and musculoskeletal dysfunction." },
+  { chapter: 1, term: "Overweight", definition: "A BMI of 25 to 29.9, indicating body weight above normal standards relative to height." },
+  { chapter: 1, term: "Coronary heart disease", definition: "A condition caused by narrowing of coronary arteries due to plaque buildup (atherosclerosis). Leading cause of death in the United States." },
+  { chapter: 1, term: "Diabetes mellitus", definition: "A chronic metabolic disorder characterized by high blood glucose levels due to inadequate insulin production (Type 1) or insulin resistance (Type 2)." },
+  { chapter: 1, term: "Physical activity", definition: "Any bodily movement produced by skeletal muscles that requires energy expenditure beyond resting levels." },
+  { chapter: 1, term: "Exercise", definition: "A type of physical activity that is planned, structured, repetitive, and performed with the goal of improving or maintaining physical fitness." },
+  { chapter: 1, term: "Muscular system", definition: "The system of tissues that provides movement of and within the body; one of the three systems comprising the kinetic chain." },
+  { chapter: 1, term: "Nervous system", definition: "The network of neurons that transmits signals between the brain and body; provides communication and coordination within the kinetic chain." },
+  { chapter: 1, term: "Skeletal system", definition: "The framework of bones and joints that provides structure, support, and protection; one of the three systems of the kinetic chain." },
+  { chapter: 1, term: "Risk factor", definition: "A characteristic or condition that increases the likelihood of developing a disease. Examples include physical inactivity, smoking, and poor nutrition." },
+  { chapter: 1, term: "Personal training", definition: "The profession of coaching individuals through exercise programs designed to improve health, fitness, and performance based on individual goals and needs." },
 
-  // Chapter 2
+  // ─── Chapter 2: Basic Exercise Science ───
   { chapter: 2, term: "Agonist", definition: "The muscle that is the primary mover in a given exercise. Example: biceps during a bicep curl." },
   { chapter: 2, term: "Antagonist", definition: "The muscle that opposes the primary mover. Example: triceps during a bicep curl." },
   { chapter: 2, term: "Synergist", definition: "A muscle that assists the agonist in performing a movement." },
   { chapter: 2, term: "Stabilizer", definition: "A muscle that supports a joint during movement, allowing the agonist to work effectively." },
   { chapter: 2, term: "Golgi Tendon Organ (GTO)", definition: "A sensory receptor in tendons that senses changes in muscular tension. When stimulated, it causes the muscle to relax (autogenic inhibition)." },
   { chapter: 2, term: "Muscle spindle", definition: "A sensory receptor within muscle that detects changes in muscle length. When stimulated quickly, it causes a reflexive contraction." },
+  { chapter: 2, term: "Skeletal muscle", definition: "Voluntary, striated muscle tissue attached to bones via tendons. Responsible for producing movement and maintaining posture." },
+  { chapter: 2, term: "Smooth muscle", definition: "Involuntary, non-striated muscle found in the walls of blood vessels, the digestive tract, and other internal organs." },
+  { chapter: 2, term: "Cardiac muscle", definition: "Involuntary, striated muscle found only in the heart. Contracts rhythmically to pump blood throughout the body." },
+  { chapter: 2, term: "Motor unit", definition: "A motor neuron and all of the muscle fibers it innervates. The functional unit of the neuromuscular system." },
+  { chapter: 2, term: "Neuromuscular junction", definition: "The site where a motor neuron meets a muscle fiber. Acetylcholine is released here to stimulate muscle contraction." },
+  { chapter: 2, term: "Type I (slow-twitch) muscle fibers", definition: "Smaller, fatigue-resistant fibers that produce less force but are used for endurance activities. High in mitochondria and capillary density." },
+  { chapter: 2, term: "Type II (fast-twitch) muscle fibers", definition: "Larger fibers that produce more force and power but fatigue quickly. Used for high-intensity, short-duration activities like sprinting." },
+  { chapter: 2, term: "Proprioception", definition: "The body's ability to sense its position and movement in space using sensory receptors in muscles, tendons, and joints." },
+  { chapter: 2, term: "Concentric contraction", definition: "A muscle action where the muscle shortens while producing force; the 'positive' phase of a lift." },
+  { chapter: 2, term: "Eccentric contraction", definition: "A muscle action where the muscle lengthens while producing force; the 'negative' or lowering phase of a lift." },
+  { chapter: 2, term: "Isometric contraction", definition: "A muscle action where force is produced without a change in muscle length. Example: holding a plank." },
+  { chapter: 2, term: "Sarcomere", definition: "The smallest functional unit of muscle contraction. Contains actin (thin) and myosin (thick) filaments that slide past each other to produce force." },
+  { chapter: 2, term: "Sliding filament theory", definition: "The theory explaining muscle contraction: myosin heads attach to actin filaments and pull them toward the center of the sarcomere, shortening the muscle." },
+  { chapter: 2, term: "All-or-nothing principle", definition: "A motor unit's muscle fibers either contract fully or not at all when stimulated. Force is modulated by recruiting more or fewer motor units." },
 
-  // Chapter 4
+  // ─── Chapter 3: The Cardiorespiratory System ───
+  { chapter: 3, term: "Heart", definition: "A four-chambered muscular organ that pumps blood throughout the body. Right side handles pulmonary circulation; left side handles systemic circulation." },
+  { chapter: 3, term: "Stroke volume", definition: "The amount of blood pumped out of the left ventricle with each heartbeat. Increases with aerobic training." },
+  { chapter: 3, term: "Cardiac output", definition: "The total volume of blood pumped by the heart per minute. Calculated as heart rate × stroke volume." },
+  { chapter: 3, term: "VO2max", definition: "The maximum rate of oxygen consumption during maximal exercise. Considered the best measure of cardiorespiratory fitness." },
+  { chapter: 3, term: "Heart rate reserve (HRR)", definition: "The difference between maximal heart rate and resting heart rate. Used in the Karvonen formula to calculate target training heart rates." },
+  { chapter: 3, term: "Karvonen formula", definition: "Target HR = (HRmax − HRrest) × %intensity + HRrest. A method for calculating target heart rate zones using heart rate reserve." },
+  { chapter: 3, term: "Maximal heart rate (HRmax)", definition: "The highest heart rate an individual can achieve during maximal exertion. Commonly estimated as 220 minus age." },
+  { chapter: 3, term: "Arteries", definition: "Blood vessels that carry oxygenated blood away from the heart to the body's tissues (except pulmonary arteries, which carry deoxygenated blood to the lungs)." },
+  { chapter: 3, term: "Veins", definition: "Blood vessels that return deoxygenated blood back to the heart (except pulmonary veins, which return oxygenated blood from the lungs)." },
+  { chapter: 3, term: "Capillaries", definition: "The smallest blood vessels where gas, nutrient, and waste exchange occurs between blood and tissue cells." },
+  { chapter: 3, term: "Blood pressure", definition: "The force exerted by blood against arterial walls. Measured as systolic (contraction) over diastolic (relaxation). Normal is less than 120/80 mmHg." },
+  { chapter: 3, term: "Systolic blood pressure", definition: "The pressure in arteries when the heart contracts (beats). The top number in a blood pressure reading." },
+  { chapter: 3, term: "Diastolic blood pressure", definition: "The pressure in arteries when the heart is relaxed between beats. The bottom number in a blood pressure reading." },
+  { chapter: 3, term: "Respiratory rate", definition: "The number of breaths taken per minute. Increases during exercise to meet the body's increased oxygen demand." },
+  { chapter: 3, term: "Tidal volume", definition: "The amount of air inhaled or exhaled during a normal breath. Increases during exercise to improve gas exchange." },
+  { chapter: 3, term: "Ventilatory threshold", definition: "The point during exercise at which breathing becomes labored and the body can no longer produce energy efficiently through aerobic metabolism alone." },
+  { chapter: 3, term: "Steady-state cardio", definition: "Exercise performed at a consistent intensity where oxygen supply meets demand, allowing sustained effort. Typically in heart rate Zone 1." },
+  { chapter: 3, term: "EPOC (Excess Post-exercise Oxygen Consumption)", definition: "The elevated rate of oxygen intake that occurs after exercise as the body recovers. Higher after intense exercise; contributes to additional calorie burn." },
+
+  // ─── Chapter 4: Fitness Assessment ───
   { chapter: 4, term: "Overhead Squat Assessment", definition: "A transitional movement assessment used to evaluate dynamic flexibility, core strength, balance, and overall neuromuscular control." },
   { chapter: 4, term: "Kinetic chain checkpoints", definition: "Five points observed during movement assessments: feet/ankles, knees, lumbo-pelvic-hip complex (LPHC), shoulders, head/cervical spine." },
   { chapter: 4, term: "Upper crossed syndrome", definition: "A postural distortion characterized by rounded shoulders and forward head posture, caused by overactive upper trapezius/levator scapulae and underactive deep cervical flexors/lower trapezius." },
+  { chapter: 4, term: "Lower crossed syndrome", definition: "A postural distortion characterized by an anterior pelvic tilt and increased lumbar lordosis, caused by overactive hip flexors/erector spinae and underactive glutes/abdominals." },
+  { chapter: 4, term: "PAR-Q (Physical Activity Readiness Questionnaire)", definition: "A pre-participation screening tool that identifies individuals who may need medical clearance before starting an exercise program." },
+  { chapter: 4, term: "Single-leg squat assessment", definition: "A transitional assessment that evaluates unilateral lower-extremity strength, stability, and neuromuscular control. Compensations include knee valgus and trunk rotation." },
+  { chapter: 4, term: "Pushing assessment", definition: "An observation of upper-body pushing movement (e.g., push-up) to identify compensations such as low back arching and forward head posture." },
+  { chapter: 4, term: "Pulling assessment", definition: "An observation of upper-body pulling movement (e.g., standing cable row) to identify compensations such as shoulder elevation and forward head posture." },
+  { chapter: 4, term: "Body composition", definition: "The relative proportion of fat mass and fat-free mass (muscle, bone, water, organs) in the body. Common methods include skinfold calipers, BIA, and circumference measurements." },
+  { chapter: 4, term: "Body mass index (BMI)", definition: "A measure of body weight relative to height (kg/m²). Used as a general screening tool but does not distinguish between fat and lean mass." },
+  { chapter: 4, term: "Circumference measurements", definition: "Body measurements taken at specific anatomical sites to track changes in body size. Common sites include waist, hips, chest, and limbs." },
+  { chapter: 4, term: "Cardiorespiratory fitness assessments", definition: "Tests that estimate VO2max or aerobic capacity, including the YMCA 3-minute step test, Rockport walk test, and the YMCA bike test." },
+  { chapter: 4, term: "Pronation distortion syndrome", definition: "A postural distortion characterized by excessive foot pronation (flat feet), knee valgus, and adducted/internally rotated hips." },
+  { chapter: 4, term: "Gait assessment", definition: "Observation of a client's walking pattern to identify compensation patterns at the kinetic chain checkpoints (foot/ankle, knee, LPHC, shoulder, head)." },
+  { chapter: 4, term: "Static posture assessment", definition: "A visual observation of a client's resting alignment from anterior, posterior, and lateral views to identify postural deviations." },
+  { chapter: 4, term: "Subjective information", definition: "Data gathered from the client about their personal history, including occupation, lifestyle, medical history, and exercise experience." },
+  { chapter: 4, term: "Objective information", definition: "Measurable data collected by the trainer, including physiological assessments, body composition, cardiorespiratory tests, and movement assessments." },
 
-  // Chapter 5
+  // ─── Chapter 5: Human Movement Science ───
   { chapter: 5, term: "Eccentric contraction", definition: "A muscle action where the muscle lengthens under tension (the lowering phase). Example: lowering a dumbbell during a bicep curl." },
   { chapter: 5, term: "Concentric contraction", definition: "A muscle action where the muscle shortens under tension (the lifting phase). Example: curling a dumbbell up." },
   { chapter: 5, term: "Isometric contraction", definition: "A muscle action where the muscle produces force without changing length. Example: holding a plank." },
   { chapter: 5, term: "Force-velocity curve", definition: "As the velocity of a concentric contraction increases, the force the muscle can produce decreases. Slow movements = more force." },
+  { chapter: 5, term: "Biomechanics", definition: "The study of how forces act on and within the human body during movement, including levers, torque, and planes of motion." },
+  { chapter: 5, term: "Force couple", definition: "Muscles working together on opposite sides of a joint to produce rotation. Example: the upper trapezius and lower serratus anterior rotate the scapula upward." },
+  { chapter: 5, term: "Length-tension relationship", definition: "The principle that a muscle generates the most force when it is at its optimal resting length. Overly shortened or lengthened muscles produce less force." },
+  { chapter: 5, term: "Force-production capacity", definition: "The ability of the neuromuscular system to produce internal tension to overcome external forces; depends on motor unit recruitment and muscle cross-section." },
+  { chapter: 5, term: "Sagittal plane", definition: "An imaginary plane that divides the body into left and right halves. Movements include flexion and extension (e.g., bicep curls, squats)." },
+  { chapter: 5, term: "Frontal plane", definition: "An imaginary plane that divides the body into front and back halves. Movements include abduction and adduction (e.g., lateral raises, side lunges)." },
+  { chapter: 5, term: "Transverse plane", definition: "An imaginary plane that divides the body into upper and lower halves. Movements include rotation (e.g., cable woodchops, throwing)." },
+  { chapter: 5, term: "Lever system", definition: "A rigid structure (bone) that rotates around a fixed point (joint/fulcrum) when force (muscle) is applied to move a resistance (load)." },
+  { chapter: 5, term: "Torque", definition: "A rotational force produced around an axis. Calculated as force × distance from the axis of rotation (moment arm)." },
+  { chapter: 5, term: "Neuromuscular efficiency", definition: "The ability of the nervous system to recruit the correct muscles (agonists, antagonists, synergists, stabilizers) to produce force and reduce force in all planes of motion." },
+  { chapter: 5, term: "Muscle synergies", definition: "Groups of muscles that are recruited together by the nervous system to produce coordinated functional movements rather than isolated actions." },
+  { chapter: 5, term: "Motor behavior", definition: "The study of how motor skills are learned and controlled, encompassing motor control, motor learning, and motor development." },
+  { chapter: 5, term: "Sensorimotor integration", definition: "The process by which the nervous system gathers sensory information and uses it to produce an appropriate motor response." },
+  { chapter: 5, term: "Mechanical advantage", definition: "A characteristic of a lever system where the effort arm is longer than the resistance arm, allowing a smaller force to move a larger load." },
 
-  // Chapter 6
+  // ─── Chapter 6: Flexibility Training Concepts ───
   { chapter: 6, term: "Self-myofascial release (SMR)", definition: "A flexibility technique using tools like foam rollers to apply pressure to tight muscles, reducing adhesions and improving range of motion." },
   { chapter: 6, term: "Autogenic inhibition", definition: "The process by which neural impulses from the GTO override muscle spindle activity, causing a muscle to relax. This is why holding a stretch works." },
   { chapter: 6, term: "Reciprocal inhibition", definition: "The simultaneous relaxation of one muscle during contraction of its antagonist. Example: hip flexors relax when glutes contract." },
+  { chapter: 6, term: "Flexibility", definition: "The normal extensibility of all soft tissues that allows full range of motion at a joint or series of joints." },
+  { chapter: 6, term: "Static stretching", definition: "Holding a stretch at the end range of motion for 30 seconds. Used in the corrective and active flexibility phases to lengthen overactive muscles." },
+  { chapter: 6, term: "Active-isolated stretching", definition: "A stretching technique using reciprocal inhibition by actively contracting the antagonist muscle to stretch the agonist. Held for 1-2 seconds, 5-10 reps." },
+  { chapter: 6, term: "Dynamic stretching", definition: "Active movements that take a joint through its full range of motion, mimicking functional movements. Used as part of a warm-up. Example: walking lunges with rotation." },
+  { chapter: 6, term: "Corrective flexibility", definition: "The first phase of flexibility training using SMR and static stretching. Goal: correct muscle imbalances and improve joint range of motion." },
+  { chapter: 6, term: "Active flexibility", definition: "The second phase of flexibility training using SMR and active-isolated stretching. Goal: improve soft tissue extensibility and neuromuscular efficiency." },
+  { chapter: 6, term: "Functional flexibility", definition: "The third phase of flexibility training using SMR and dynamic stretching. Goal: achieve optimal multiplanar soft tissue extensibility with neuromuscular control." },
+  { chapter: 6, term: "Fascia", definition: "A connective tissue that surrounds muscles, bones, and joints, providing support and structure. Can develop adhesions (knots) that restrict movement." },
+  { chapter: 6, term: "Adhesion (knot)", definition: "An area of increased tissue density caused by trauma, inflammation, or poor posture. Restricts normal muscle function and range of motion. Addressed with SMR." },
+  { chapter: 6, term: "Davis's law", definition: "Soft tissue remodels along the lines of stress placed upon it. Prolonged poor posture can cause tissues to adapt to shortened positions." },
+  { chapter: 6, term: "Relative flexibility", definition: "The tendency of the body to seek the path of least resistance during movement, leading to compensation patterns at joints with greater mobility." },
+  { chapter: 6, term: "Neuromuscular stretching", definition: "An advanced form of stretching (e.g., PNF) that uses the neuromuscular system's reflexes (autogenic and reciprocal inhibition) to achieve greater flexibility." },
+  { chapter: 6, term: "Pattern overload", definition: "Repetitive stress on the same tissues without adequate recovery, leading to muscle imbalances, adhesions, and potential injury." },
+  { chapter: 6, term: "Postural distortion patterns", definition: "Predictable patterns of muscle imbalances. The three main patterns are pronation distortion, lower crossed syndrome, and upper crossed syndrome." },
 
-  // Chapter 8
+  // ─── Chapter 7: Cardiorespiratory Fitness Training ───
+  { chapter: 7, term: "Zone 1 (Base training)", definition: "Heart rate zone at 65-75% HRmax. Builds an aerobic base, improves fat utilization, and develops cardiovascular efficiency. Used in Stage I training." },
+  { chapter: 7, term: "Zone 2 (Fitness training)", definition: "Heart rate zone at 76-85% HRmax. Increases aerobic and anaerobic endurance. Used in Stage II training." },
+  { chapter: 7, term: "Zone 3 (Peak performance)", definition: "Heart rate zone at 86-95% HRmax. High-intensity training that increases peak power and anaerobic capacity. Used in Stage III training." },
+  { chapter: 7, term: "FITTE factors", definition: "Variables used to design a cardiorespiratory program: Frequency, Intensity, Time, Type, and Enjoyment." },
+  { chapter: 7, term: "Stage I (aerobic base training)", definition: "Beginner cardio stage using Zone 1. Steady-state exercise at 65-75% HRmax for 20-60 minutes. Goal: build aerobic base and exercise tolerance." },
+  { chapter: 7, term: "Stage II (aerobic efficiency training)", definition: "Intermediate cardio stage introducing Zone 2 intervals. Alternates between Zone 1 and Zone 2. Goal: increase aerobic endurance and caloric expenditure." },
+  { chapter: 7, term: "Stage III (anaerobic endurance training)", definition: "Advanced cardio stage introducing Zone 3 intervals. Alternates between Zone 1 and Zone 3. Goal: improve anaerobic threshold and peak VO2." },
+  { chapter: 7, term: "Interval training", definition: "Alternating between higher-intensity and lower-intensity exercise bouts. More effective for improving VO2max and caloric expenditure than steady-state alone." },
+  { chapter: 7, term: "Rate of perceived exertion (RPE)", definition: "A subjective scale (typically 1-10) used to gauge exercise intensity based on how hard the client feels they are working." },
+  { chapter: 7, term: "Talk test", definition: "A simple method to gauge exercise intensity: if a client can speak comfortably, they are likely in an aerobic zone; if they cannot, they are likely in an anaerobic zone." },
+  { chapter: 7, term: "Frequency (FITTE)", definition: "How often a client performs cardiorespiratory exercise per week. General recommendation: 3-5 days per week for most adults." },
+  { chapter: 7, term: "Intensity (FITTE)", definition: "How hard a client exercises during cardio training. Measured by HRmax percentage, HRR (Karvonen), RPE, or the talk test." },
+  { chapter: 7, term: "Time (FITTE)", definition: "The duration of each cardiorespiratory exercise session. General recommendation: 20-60 minutes depending on intensity and fitness level." },
+  { chapter: 7, term: "Type (FITTE)", definition: "The mode or form of cardiorespiratory exercise (e.g., walking, cycling, swimming, rowing). Should match the client's goals and abilities." },
+  { chapter: 7, term: "Enjoyment (FITTE)", definition: "Selecting cardio activities the client finds pleasurable. Crucial for long-term adherence to an exercise program." },
+  { chapter: 7, term: "General warm-up", definition: "Low-intensity activity (e.g., walking or light cycling) performed for 5-10 minutes before exercise to increase heart rate, blood flow, and tissue temperature." },
+  { chapter: 7, term: "Cool-down", definition: "A period of low-intensity activity after exercise to gradually reduce heart rate, prevent blood pooling, and promote recovery." },
+  { chapter: 7, term: "Aerobic metabolism", definition: "Energy production using oxygen to break down carbohydrates and fats. Primary energy system during sustained, lower-intensity exercise." },
+
+  // ─── Chapter 8: Core Training Concepts ───
   { chapter: 8, term: "Local stabilization system", definition: "Deep muscles that attach directly to the vertebrae (transverse abdominis, multifidus, internal obliques, pelvic floor). They stabilize the spine." },
   { chapter: 8, term: "Global stabilization system", definition: "Muscles that attach from the pelvis to the spine (quadratus lumborum, psoas major, external obliques). They transfer force between upper and lower body." },
   { chapter: 8, term: "Drawing-in maneuver", definition: "Pulling the navel toward the spine to activate the transverse abdominis and stabilize the lumbo-pelvic-hip complex." },
+  { chapter: 8, term: "Global movement system", definition: "The outermost core muscles responsible for movement and force production (rectus abdominis, hip flexors, hamstring complex, quadriceps)." },
+  { chapter: 8, term: "Bracing", definition: "Co-contracting the global muscles (abdominals, low back, glutes) to create a rigid, stable torso. Used during heavy lifting for spinal protection." },
+  { chapter: 8, term: "Core", definition: "The lumbo-pelvic-hip complex (LPHC), thoracic spine, and cervical spine. It is where the body's center of gravity is located and where all movement originates." },
+  { chapter: 8, term: "Core stabilization training", definition: "Exercises that target the local stabilization system with minimal spinal movement. Examples: plank, floor bridge, prone cobra. Used in OPT Phase 1." },
+  { chapter: 8, term: "Core strength training", definition: "Exercises involving more dynamic movements through a full range of motion while maintaining core stability. Examples: ball crunch, cable rotation. Used in OPT Phases 2-3." },
+  { chapter: 8, term: "Core power training", definition: "Explosive core exercises performed at high velocities. Examples: medicine ball throws, rotation chest pass. Used in OPT Phase 5." },
+  { chapter: 8, term: "Transverse abdominis (TVA)", definition: "The deepest abdominal muscle that wraps around the spine like a corset. Primary muscle activated during the drawing-in maneuver; critical for spinal stabilization." },
+  { chapter: 8, term: "Multifidus", definition: "A deep spinal muscle that provides segmental stabilization of the vertebrae. Works with the TVA to protect the lumbar spine." },
+  { chapter: 8, term: "Rectus abdominis", definition: "The most superficial abdominal muscle (the 'six-pack'). Part of the global movement system; responsible for spinal flexion." },
+  { chapter: 8, term: "Internal obliques", definition: "A deep core muscle that works with the TVA for spinal stabilization. Part of the local stabilization system; assists with rotation and lateral flexion." },
+  { chapter: 8, term: "External obliques", definition: "A superficial core muscle that assists with trunk rotation, lateral flexion, and force transfer. Part of the global stabilization system." },
+  { chapter: 8, term: "Lumbo-pelvic-hip complex (LPHC)", definition: "The region comprising the lumbar spine, pelvis, and hip joints. Considered the foundation of the core and the center of the kinetic chain." },
+  { chapter: 8, term: "Intervertebral stability", definition: "The ability of each spinal segment to maintain proper alignment and resist unwanted movement during loading and dynamic activity." },
+  { chapter: 8, term: "Rate of force production", definition: "How quickly a muscle can generate force. Core power training increases the rate of force production in the LPHC muscles." },
 
-  // Chapter 12
+  // ─── Chapter 9: Balance Training Concepts ───
+  { chapter: 9, term: "Balance", definition: "The ability to sustain or return the body's center of gravity over its base of support. Requires integration of visual, vestibular, and proprioceptive systems." },
+  { chapter: 9, term: "Proprioception", definition: "The body's ability to sense the position and movement of its joints and limbs in space. Provided by mechanoreceptors in muscles, tendons, and joints." },
+  { chapter: 9, term: "Base of support", definition: "The area beneath and between the points of contact the body has with the ground. A wider base increases stability." },
+  { chapter: 9, term: "Center of gravity", definition: "The point at which the body's mass is evenly distributed. Located approximately at the sacrum (S2) when standing. Lowering it increases stability." },
+  { chapter: 9, term: "Static balance", definition: "The ability to maintain a stable position while stationary. Example: single-leg stance." },
+  { chapter: 9, term: "Dynamic balance", definition: "The ability to maintain stability while in motion or transitioning between movements. Example: single-leg hop and hold." },
+  { chapter: 9, term: "Balance stabilization training", definition: "Exercises that involve minimal joint motion on an unstable surface. Examples: single-leg balance, single-leg balance reach. Used in OPT Phase 1." },
+  { chapter: 9, term: "Balance strength training", definition: "Exercises involving dynamic movements through a full range of motion in an unstable environment. Examples: single-leg squat, lunge to balance. Used in OPT Phases 2-3." },
+  { chapter: 9, term: "Balance power training", definition: "Exercises that involve explosive movements with controlled landings on unstable surfaces. Examples: hop to stabilization, box jump-down. Used in OPT Phase 5." },
+  { chapter: 9, term: "Vestibular system", definition: "The sensory system located in the inner ear that provides information about head position and movement, contributing to balance and spatial orientation." },
+  { chapter: 9, term: "Visual system", definition: "Uses visual references (horizon, objects) to provide the brain with information about body position relative to the environment. Important for balance." },
+  { chapter: 9, term: "Somatosensory system", definition: "The network of sensory receptors in the skin, muscles, tendons, and joints that provides proprioceptive and tactile input for balance control." },
+  { chapter: 9, term: "Mechanoreceptors", definition: "Sensory receptors that respond to mechanical pressure or distortion. Include muscle spindles, GTOs, and joint receptors. Critical for proprioception and balance." },
+  { chapter: 9, term: "Joint receptors", definition: "Proprioceptors located in joint capsules that detect pressure, acceleration, and deceleration. Respond to joint position changes and help maintain balance." },
+  { chapter: 9, term: "Postural control", definition: "The ability of the neuromuscular system to maintain the center of gravity within the base of support, both at rest and during movement." },
+  { chapter: 9, term: "Sensorimotor integration for balance", definition: "The process of receiving sensory input from proprioceptive, visual, and vestibular systems and producing an appropriate motor response to maintain equilibrium." },
+  { chapter: 9, term: "Multiplanar balance training", definition: "Performing balance exercises that challenge stability in all three planes of motion (sagittal, frontal, transverse) to develop functional real-world balance." },
+
+  // ─── Chapter 10: Plyometric (Reactive) Training Concepts ───
+  { chapter: 10, term: "Plyometric training", definition: "Quick, powerful movements involving an eccentric contraction immediately followed by a concentric contraction. Designed to improve the rate of force production." },
+  { chapter: 10, term: "Stretch-shortening cycle", definition: "The three-phase mechanism of plyometric movement: eccentric (loading), amortization (transition), and concentric (unloading). Stores and releases elastic energy." },
+  { chapter: 10, term: "Amortization phase", definition: "The transition phase between the eccentric and concentric phases of a plyometric exercise. Must be as short as possible to maximize power output." },
+  { chapter: 10, term: "Reactive training", definition: "Exercises that use quick, powerful movements to enhance the neuromuscular system's ability to produce force rapidly. Synonymous with plyometric training in NASM." },
+  { chapter: 10, term: "Eccentric phase (plyometrics)", definition: "The loading phase of a plyometric exercise where the muscle lengthens and stores elastic energy. Also called the deceleration or cocking phase." },
+  { chapter: 10, term: "Concentric phase (plyometrics)", definition: "The unloading phase of a plyometric exercise where stored elastic energy is released to produce an explosive movement." },
+  { chapter: 10, term: "Integrated performance paradigm", definition: "The concept that in order to move efficiently, the body must eccentrically decelerate, isometrically stabilize, and concentrically accelerate during functional movement." },
+  { chapter: 10, term: "Rate of force production", definition: "The speed at which muscles can generate force. The primary goal of plyometric training is to increase this rate." },
+  { chapter: 10, term: "Reactive stabilization training", definition: "Low-intensity plyometric exercises that involve holding a landing or stabilizing after a movement. Examples: squat jump with stabilization. Used in OPT Phase 1." },
+  { chapter: 10, term: "Reactive strength training", definition: "Moderate-intensity plyometric exercises involving repeated jumps or movements without prolonged holds. Examples: tuck jumps, squat jumps. Used in OPT Phases 2-3." },
+  { chapter: 10, term: "Reactive power training", definition: "High-intensity plyometric exercises performed as explosively as possible. Examples: ice skaters, depth jumps, plyometric push-ups. Used in OPT Phase 5." },
+  { chapter: 10, term: "Type II fiber recruitment", definition: "Plyometric training preferentially recruits fast-twitch muscle fibers, which produce high force at high speeds, improving explosive power." },
+  { chapter: 10, term: "Elastic energy", definition: "Energy stored in the series elastic components (tendons and connective tissue) of muscles during the eccentric phase, then released during the concentric phase." },
+  { chapter: 10, term: "Neuromuscular efficiency (plyometrics)", definition: "The ability of the nervous system to properly recruit muscles with the right timing and force. Plyometric training improves this through repeated high-speed contractions." },
+  { chapter: 10, term: "Deceleration", definition: "The ability to slow down or absorb force, primarily through eccentric muscle actions. Must be trained before explosive concentric movements to prevent injury." },
+  { chapter: 10, term: "Proper landing mechanics", definition: "Landing with soft knees, feet shoulder-width apart, toes pointing forward, and avoiding knee valgus. Essential for safe plyometric training." },
+  { chapter: 10, term: "Power", definition: "The ability to produce the greatest amount of force in the shortest time. Calculated as force × velocity. The ultimate goal of plyometric training." },
+
+  // ─── Chapter 12: Resistance Training Concepts ───
   { chapter: 12, term: "Stabilization Endurance (Phase 1)", definition: "OPT Phase 1: high reps (12-20), low intensity, slow tempo (4/2/1), unstable environments. Goal: improve stability and correct imbalances." },
   { chapter: 12, term: "Strength Endurance (Phase 2)", definition: "OPT Phase 2: supersets of stable and unstable exercises. Moderate reps (8-12). Goal: improve stabilization endurance and prime movers." },
   { chapter: 12, term: "Muscular Development (Phase 3)", definition: "OPT Phase 3: higher volume (3-5 sets, 6-12 reps), moderate to high intensity. Goal: maximal muscle growth (hypertrophy)." },
   { chapter: 12, term: "Maximal Strength (Phase 4)", definition: "OPT Phase 4: heavy loads (85-100% 1RM), low reps (1-5), long rest (3-5 min). Goal: increase maximal strength." },
   { chapter: 12, term: "Power (Phase 5)", definition: "OPT Phase 5: supersets of heavy strength exercise + explosive power exercise. Goal: develop speed and power." },
 
-  // Chapter 13
+  // ─── Chapter 13: Program Design ───
   { chapter: 13, term: "OPT Model", definition: "Optimum Performance Training model. NASM's systematic training framework with 3 levels (Stabilization, Strength, Power) and 5 phases." },
   { chapter: 13, term: "Periodization", definition: "Systematic planning of training that varies volume, intensity, and exercise selection over time to prevent plateaus and overtraining." },
 
-  // Chapter 14
+  // ─── Chapter 14: Nutrition ───
   { chapter: 14, term: "Macronutrients", definition: "Nutrients needed in large amounts: carbohydrates (4 cal/g), protein (4 cal/g), and fat (9 cal/g)." },
   { chapter: 14, term: "BMR (Basal Metabolic Rate)", definition: "The number of calories your body needs at complete rest to maintain basic life functions. Accounts for ~70% of daily energy expenditure." },
   { chapter: 14, term: "TDEE (Total Daily Energy Expenditure)", definition: "Total calories burned in a day. Includes BMR + physical activity + thermic effect of food." },
 
-  // Chapter 17
+  // ─── Chapter 17: Special Populations ───
   { chapter: 17, term: "Special populations", definition: "Groups requiring modified exercise programming: youth, older adults, pregnant women, those with obesity, diabetes, hypertension, or other conditions." },
   { chapter: 17, term: "Diabetes considerations", definition: "For diabetic clients: monitor blood glucose before/during/after exercise, carry fast-acting carbs, avoid exercise during peak insulin activity." },
 
-  // Chapter 19
+  // ─── Chapter 19: Professional Development ───
   { chapter: 19, term: "Scope of practice", definition: "The boundaries of what a personal trainer is qualified to do. Trainers CANNOT diagnose conditions, prescribe diets, or provide therapy." },
   { chapter: 19, term: "PAR-Q", definition: "Physical Activity Readiness Questionnaire. A screening tool used before starting an exercise program to identify potential health risks." },
 ];
