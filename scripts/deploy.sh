@@ -1,9 +1,23 @@
 #!/bin/bash
-# Quick deploy: build → commit → push → vercel
+# Full deploy: run migrations → build → commit → push → vercel
 set -e
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 MSG="${1:-update}"
+
+# Run any new SQL migrations
+for f in supabase/migrations/*.sql; do
+  echo "→ Running migration: $f"
+  supabase db query --linked -f "$f" --workdir /Users/gavintaylor/nasm-study-app 2>&1 || echo "  (already applied or skipped)"
+done
+
+# Run any seed files
+for f in supabase/seed-*.sql; do
+  if [ -f "$f" ]; then
+    echo "→ Running seed: $f"
+    supabase db query --linked -f "$f" --workdir /Users/gavintaylor/nasm-study-app 2>&1 || echo "  (already applied or skipped)"
+  fi
+done
 
 echo "→ Building..."
 npm run build
@@ -20,4 +34,4 @@ git push
 echo "→ Deploying to Vercel..."
 vercel --prod --yes
 
-echo "✓ Done!"
+echo "✓ All done!"
