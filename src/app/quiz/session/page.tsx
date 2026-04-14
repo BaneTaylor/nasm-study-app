@@ -3,8 +3,6 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { seedQuestions } from "@/lib/quiz/seed-questions";
-import { seedQuestions2 } from "@/lib/quiz/seed-questions-2";
 import Link from "next/link";
 
 type Question = {
@@ -54,25 +52,6 @@ function QuizSession() {
 
   async function loadQuestions() {
     setLoading(true);
-
-    // Check if questions exist, seed if not
-    const { count } = await supabase
-      .from("questions")
-      .select("*", { count: "exact", head: true });
-
-    if (count === 0) {
-      const allQuestions = [...seedQuestions, ...seedQuestions2];
-      await supabase.from("questions").insert(
-        allQuestions.map((q) => ({
-          chapter: q.chapter,
-          question: q.question,
-          options: q.options,
-          correct_answer: q.correct_answer,
-          explanation: q.explanation,
-          difficulty: q.difficulty,
-        }))
-      );
-    }
 
     let query = supabase.from("questions").select("*");
     if (mode === "chapter" && chapterParam) {

@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getNextReviewDate } from "@/lib/flashcards/spaced-repetition";
-import { seedFlashcards } from "@/lib/flashcards/seed-data";
-import { seedFlashcards2 } from "@/lib/flashcards/seed-data-2";
 import Link from "next/link";
 
 type Flashcard = {
@@ -43,25 +41,6 @@ export default function FlashcardsPage() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return;
-
-    // Check if flashcards exist, if not seed them
-    const { count } = await supabase
-      .from("flashcards")
-      .select("*", { count: "exact", head: true })
-      .eq("is_default", true);
-
-    if (count === 0) {
-      const allCards = [...seedFlashcards, ...seedFlashcards2];
-      await supabase.from("flashcards").insert(
-        allCards.map((f) => ({
-          chapter: f.chapter,
-          term: f.term,
-          definition: f.definition,
-          is_default: true,
-          created_by: null,
-        }))
-      );
-    }
 
     // Fetch flashcards with optional chapter filter
     let query = supabase.from("flashcards").select("*").eq("is_default", true);

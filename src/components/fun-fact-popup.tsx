@@ -24,22 +24,6 @@ export default function FunFactPopup() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Check if fun_facts table has data
-    const { count } = await supabase
-      .from("fun_facts")
-      .select("*", { count: "exact", head: true });
-
-    // Seed if empty
-    if (count === 0 || count === null) {
-      const rows = funFacts.map((f) => ({
-        chapter: f.chapter,
-        emoji: f.emoji,
-        fact: f.fact,
-        chapter_label: f.chapter_label,
-      }));
-      await supabase.from("fun_facts").insert(rows);
-    }
-
     // Get facts the user hasn't seen yet
     const { data: viewedRows } = await supabase
       .from("fun_fact_views")
