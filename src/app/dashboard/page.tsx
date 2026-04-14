@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./logout-button";
 import Link from "next/link";
+import FunFactWrapper from "./fun-fact-wrapper";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -50,6 +51,8 @@ export default async function DashboardPage() {
           <LogoutButton />
         </div>
 
+        <FunFactWrapper />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/flashcards"
@@ -87,6 +90,19 @@ export default async function DashboardPage() {
             </h2>
             <p className="text-gray-400 text-sm mt-1">
               Condensed notes for each chapter
+            </p>
+          </Link>
+
+          <Link
+            href="/schedule"
+            className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-cyan-500 transition-colors group"
+          >
+            <div className="text-3xl mb-3">📅</div>
+            <h2 className="text-lg font-semibold text-white group-hover:text-cyan-400 transition-colors">
+              Study Schedule
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              Your weekly study plan and sessions
             </p>
           </Link>
 
