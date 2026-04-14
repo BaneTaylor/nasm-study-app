@@ -17,10 +17,6 @@ type StatsData = {
   studySessions: StudySession[];
 };
 
-function getChapterLabel(chapter: number): string {
-  return `Ch. ${chapter}`;
-}
-
 function calculateStudyStreak(
   quizResults: QuizResult[],
   flashcardProgress: FlashcardProgress[]
@@ -91,18 +87,139 @@ function getBarColor(score: number): string {
   return "#ef4444";
 }
 
-function getReadinessLabel(avgScore: number): {
+function getBarGradient(score: number): string {
+  if (score >= 80) return "linear-gradient(90deg, #10b981, #34d399)";
+  if (score >= 60) return "linear-gradient(90deg, #3b82f6, #60a5fa)";
+  if (score >= 40) return "linear-gradient(90deg, #f59e0b, #fbbf24)";
+  return "linear-gradient(90deg, #ef4444, #f87171)";
+}
+
+function getReadinessInfo(avgScore: number): {
   label: string;
   color: string;
+  glow: string;
+  gradient: string;
 } {
-  if (avgScore >= 70) return { label: "On Track", color: "#10b981" };
-  if (avgScore >= 50) return { label: "At Risk", color: "#f59e0b" };
-  return { label: "Behind", color: "#ef4444" };
+  if (avgScore >= 70)
+    return {
+      label: "On Track",
+      color: "#10b981",
+      glow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]",
+      gradient: "from-emerald-900/40 to-emerald-800/20",
+    };
+  if (avgScore >= 50)
+    return {
+      label: "At Risk",
+      color: "#f59e0b",
+      glow: "shadow-[0_0_30px_rgba(245,158,11,0.3)]",
+      gradient: "from-amber-900/40 to-amber-800/20",
+    };
+  return {
+    label: "Behind",
+    color: "#ef4444",
+    glow: "shadow-[0_0_30px_rgba(239,68,68,0.3)]",
+    gradient: "from-red-900/40 to-red-800/20",
+  };
+}
+
+/* --- Circular Progress Ring --- */
+function CircularProgress({
+  percentage,
+  size = 160,
+  strokeWidth = 12,
+}: {
+  percentage: number;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(55, 65, 81, 0.5)"
+          strokeWidth={strokeWidth}
+        />
+        {/* Progress arc */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="url(#progressGradient)"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-1000 ease-out"
+        />
+        <defs>
+          <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#10b981" />
+          </linearGradient>
+        </defs>
+      </svg>
+      {/* Center text */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-4xl font-bold text-white">{percentage}%</span>
+        <span className="text-xs text-gray-400 mt-1">Mastery</span>
+      </div>
+    </div>
+  );
+}
+
+/* --- Skeleton Loader --- */
+function SkeletonBlock({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`bg-gray-800/60 rounded-xl animate-pulse ${className}`}
+    />
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-950 p-6">
+      <div className="max-w-4xl mx-auto">
+        <SkeletonBlock className="w-32 h-4 mb-6" />
+        {/* Hero skeleton */}
+        <div className="bg-gray-900/50 rounded-2xl p-8 mb-6 flex flex-col items-center">
+          <SkeletonBlock className="w-40 h-40 rounded-full mb-4" />
+          <SkeletonBlock className="w-48 h-6 mb-2" />
+          <SkeletonBlock className="w-32 h-4" />
+        </div>
+        {/* Cards row */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonBlock key={i} className="h-28" />
+          ))}
+        </div>
+        {/* Chapter bars */}
+        <SkeletonBlock className="h-64 mb-6" />
+        {/* Learning + Habits */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <SkeletonBlock className="h-52" />
+          <SkeletonBlock className="h-52" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function StatsPage() {
   const [data, setData] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -146,20 +263,15 @@ export default function StatsPage() {
         studySessions: (sessionRes.data as StudySession[]) || [],
       });
       setLoading(false);
+      // Trigger animations after paint
+      requestAnimationFrame(() => setAnimateIn(true));
     }
 
     fetchData();
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading your stats...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   const hasData =
@@ -174,29 +286,35 @@ export default function StatsPage() {
         <div className="max-w-4xl mx-auto">
           <Link
             href="/dashboard"
-            className="text-blue-400 hover:text-blue-300 text-sm mb-6 inline-block"
+            className="text-blue-400 hover:text-blue-300 text-sm mb-6 inline-flex items-center gap-1 touch-manipulation py-2"
           >
-            &larr; Back to Dashboard
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
           </Link>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
-            <div className="text-5xl mb-4">📊</div>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800 rounded-2xl p-12 text-center">
+            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+            </div>
             <h1 className="text-xl font-bold text-white mb-2">
               No Stats Yet
             </h1>
-            <p className="text-gray-400 mb-6">
-              Complete some quizzes or review flashcards to see your analytics
-              here.
+            <p className="text-gray-400 mb-8 max-w-sm mx-auto">
+              Complete some quizzes or review flashcards to see your analytics here.
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 justify-center flex-wrap">
               <Link
                 href="/quiz"
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all touch-manipulation active:scale-95"
               >
                 Take a Quiz
               </Link>
               <Link
                 href="/flashcards"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all touch-manipulation active:scale-95"
               >
                 Study Flashcards
               </Link>
@@ -219,7 +337,7 @@ export default function StatsPage() {
       : 0;
 
   // Exam readiness
-  const readiness = getReadinessLabel(overallMastery);
+  const readiness = getReadinessInfo(overallMastery);
   const projectedScore = Math.min(100, Math.round(overallMastery * 1.05));
 
   // Days until exam
@@ -256,67 +374,95 @@ export default function StatsPage() {
   // Smart alerts
   const weakChapters = chapterMastery.filter((c) => c.avgScore < 50);
 
+  const LEARNING_STYLE_CONFIG = [
+    { key: "visual" as const, label: "Visual", color: "#3b82f6", gradient: "from-blue-500 to-blue-600" },
+    { key: "reading_writing" as const, label: "Reading/Writing", color: "#8b5cf6", gradient: "from-purple-500 to-purple-600" },
+    { key: "active_recall" as const, label: "Active Recall", color: "#10b981", gradient: "from-emerald-500 to-emerald-600" },
+    { key: "practical" as const, label: "Practical", color: "#f59e0b", gradient: "from-amber-500 to-amber-600" },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-950 p-6">
+    <div className="min-h-screen bg-gray-950 p-4 sm:p-6 pb-24">
       <div className="max-w-4xl mx-auto">
+        {/* Back nav */}
         <Link
           href="/dashboard"
-          className="text-blue-400 hover:text-blue-300 text-sm mb-6 inline-block"
+          className="text-blue-400 hover:text-blue-300 text-sm mb-6 inline-flex items-center gap-1 touch-manipulation py-2"
         >
-          &larr; Back to Dashboard
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Dashboard
         </Link>
 
-        <h1 className="text-2xl font-bold text-white mb-6">
-          Stats & Analytics
-        </h1>
+        {/* ===== HERO SECTION ===== */}
+        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-blue-950/30 border border-gray-800/60 rounded-2xl p-6 sm:p-8 mb-6 flex flex-col items-center text-center">
+          <CircularProgress percentage={animateIn ? overallMastery : 0} />
+          <h1 className="text-2xl font-bold text-white mt-4">
+            Stats &amp; Analytics
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">
+            {quizResults.length} {quizResults.length === 1 ? "quiz" : "quizzes"} completed
+            {streak > 0 && (
+              <span className="text-amber-400 ml-2">
+                {streak} day streak
+              </span>
+            )}
+          </p>
+        </div>
 
-        {/* Top Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {/* Overall Mastery */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">
-              Overall Mastery
-            </p>
-            <p
-              className="text-3xl font-bold"
-              style={{ color: getBarColor(overallMastery) }}
-            >
-              {overallMastery}%
-            </p>
-          </div>
-
+        {/* ===== TOP CARDS ROW ===== */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {/* Exam Readiness */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">
-              Exam Readiness
-            </p>
-            <p className="text-xl font-bold" style={{ color: readiness.color }}>
+          <div
+            className={`bg-gradient-to-br ${readiness.gradient} border border-gray-800/50 rounded-2xl p-5 ${readiness.glow} transition-shadow`}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="w-3 h-3 rounded-full animate-pulse"
+                style={{ backgroundColor: readiness.color }}
+              />
+              <p className="text-gray-400 text-xs uppercase tracking-wider font-medium">
+                Exam Readiness
+              </p>
+            </div>
+            <p className="text-2xl font-bold" style={{ color: readiness.color }}>
               {readiness.label}
             </p>
             <p className="text-gray-500 text-xs mt-1">
-              Projected: {projectedScore}%
+              Projected score: {projectedScore}%
             </p>
           </div>
 
           {/* Days Until Exam */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">
-              Days Until Exam
-            </p>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-900/80 border border-gray-800/50 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+              </svg>
+              <p className="text-gray-400 text-xs uppercase tracking-wider font-medium">
+                Days Until Exam
+              </p>
+            </div>
             <p className="text-3xl font-bold text-white">
               {daysUntilExam !== null ? daysUntilExam : "--"}
             </p>
             {daysUntilExam !== null && daysUntilExam <= 14 && (
-              <p className="text-yellow-500 text-xs mt-1">Coming up soon!</p>
+              <p className="text-amber-400 text-xs mt-1 font-medium">Coming up soon!</p>
             )}
           </div>
 
           {/* Study Streak */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">
-              Study Streak
-            </p>
-            <p className="text-3xl font-bold" style={{ color: "#f59e0b" }}>
+          <div className="bg-gradient-to-br from-gray-900 to-amber-950/20 border border-gray-800/50 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2c.5 3.5-1 6.5-3 9 1.5.5 3 .5 4-1 .5 3-2 5.5-5 7 5 0 10-4 10-10C18 3 13.5 1 12 2z" />
+              </svg>
+              <p className="text-gray-400 text-xs uppercase tracking-wider font-medium">
+                Study Streak
+              </p>
+            </div>
+            <p className="text-3xl font-bold text-amber-400">
               {streak}
             </p>
             <p className="text-gray-500 text-xs mt-1">
@@ -325,188 +471,216 @@ export default function StatsPage() {
           </div>
         </div>
 
-        {/* Chapter Mastery Breakdown */}
+        {/* ===== CHAPTER MASTERY ===== */}
         {chapterMastery.length > 0 && (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
-              Chapter Mastery Breakdown
+          <div className="bg-gray-900/80 border border-gray-800/50 rounded-2xl p-5 sm:p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+              Chapter Mastery
             </h2>
             <div className="space-y-3">
-              {chapterMastery.map((ch) => (
+              {chapterMastery.map((ch, idx) => (
                 <div key={ch.chapter} className="flex items-center gap-3">
-                  <span className="text-gray-400 text-sm w-16 shrink-0">
-                    {getChapterLabel(ch.chapter)}
+                  <span className="text-gray-400 text-sm w-14 shrink-0 font-medium">
+                    Ch. {ch.chapter}
                   </span>
-                  <div className="flex-1 bg-gray-800 rounded-full h-6 relative overflow-hidden">
+                  <div className="flex-1 bg-gray-800/60 rounded-full h-7 relative overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-500"
+                      className="h-full rounded-full transition-all ease-out"
                       style={{
-                        width: `${Math.max(ch.avgScore, 2)}%`,
-                        backgroundColor: getBarColor(ch.avgScore),
+                        width: animateIn ? `${Math.max(ch.avgScore, 3)}%` : "0%",
+                        background: getBarGradient(ch.avgScore),
+                        transitionDuration: `${800 + idx * 100}ms`,
+                        transitionDelay: `${idx * 50}ms`,
                       }}
                     />
-                    <span className="absolute inset-0 flex items-center justify-end pr-2 text-xs font-medium text-white">
+                    <span className="absolute inset-0 flex items-center justify-end pr-3 text-xs font-semibold text-white drop-shadow-sm">
                       {ch.avgScore}%
                     </span>
                   </div>
-                  <span className="text-gray-500 text-xs w-20 text-right shrink-0">
+                  <span className="text-gray-500 text-xs w-16 text-right shrink-0">
                     {ch.attempts} {ch.attempts === 1 ? "quiz" : "quizzes"}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="flex gap-4 mt-4 text-xs text-gray-500">
-              <span className="flex items-center gap-1">
-                <span
-                  className="inline-block w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#10b981" }}
-                />
+            <div className="flex flex-wrap gap-4 mt-5 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-emerald-500" />
                 80%+
               </span>
-              <span className="flex items-center gap-1">
-                <span
-                  className="inline-block w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#3b82f6" }}
-                />
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-blue-500" />
                 60-79%
               </span>
-              <span className="flex items-center gap-1">
-                <span
-                  className="inline-block w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#f59e0b" }}
-                />
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-amber-500" />
                 40-59%
               </span>
-              <span className="flex items-center gap-1">
-                <span
-                  className="inline-block w-3 h-3 rounded-full"
-                  style={{ backgroundColor: "#ef4444" }}
-                />
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-red-500" />
                 &lt;40%
               </span>
             </div>
           </div>
         )}
 
-        {/* Learning Style Effectiveness */}
-        {learningStyle && (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
-              Learning Style Profile
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {(
-                [
-                  { key: "visual", label: "Visual" },
-                  { key: "reading_writing", label: "Reading/Writing" },
-                  { key: "active_recall", label: "Active Recall" },
-                  { key: "practical", label: "Practical" },
-                ] as const
-              ).map(({ key, label }) => {
-                const score = learningStyle[key];
-                return (
-                  <div key={key} className="bg-gray-800 rounded-lg p-4">
-                    <p className="text-gray-400 text-sm mb-2">{label}</p>
-                    <div className="flex items-end gap-2">
-                      <span
-                        className="text-2xl font-bold"
-                        style={{ color: "#8b5cf6" }}
-                      >
-                        {score}
-                      </span>
-                      <span className="text-gray-500 text-xs mb-1">/ 10</span>
+        {/* ===== LEARNING STYLE + STUDY HABITS ROW ===== */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Learning Style */}
+          {learningStyle && (
+            <div className="bg-gray-900/80 border border-gray-800/50 rounded-2xl p-5 sm:p-6">
+              <h2 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                </svg>
+                Learning Style
+              </h2>
+              {/* Radial bars visualization */}
+              <div className="space-y-4">
+                {LEARNING_STYLE_CONFIG.map(({ key, label, color }) => {
+                  const score = learningStyle[key];
+                  const pct = (score / 10) * 100;
+                  return (
+                    <div key={key}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm text-gray-300 font-medium">{label}</span>
+                        <span className="text-sm font-bold" style={{ color }}>
+                          {score}/10
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-800/60 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all ease-out"
+                          style={{
+                            width: animateIn ? `${pct}%` : "0%",
+                            backgroundColor: color,
+                            transitionDuration: "1000ms",
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="mt-2 bg-gray-700 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${(score / 10) * 100}%`,
-                          backgroundColor: "#8b5cf6",
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Study Habits */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Study Habits
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "#3b82f6" }}
-              >
-                {totalQuizzes}
-              </p>
-              <p className="text-gray-400 text-sm">Quizzes Taken</p>
-            </div>
-            <div className="text-center">
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "#10b981" }}
-              >
-                {avgQuizScore}%
-              </p>
-              <p className="text-gray-400 text-sm">Avg Quiz Score</p>
-            </div>
-            <div className="text-center">
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "#8b5cf6" }}
-              >
-                {flashcardsReviewed}
-              </p>
-              <p className="text-gray-400 text-sm">Flashcards Reviewed</p>
-            </div>
-            <div className="text-center">
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "#f59e0b" }}
-              >
-                {totalStudyHours}h
-              </p>
-              <p className="text-gray-400 text-sm">Total Study Time</p>
+          {/* Study Habits */}
+          <div className="bg-gray-900/80 border border-gray-800/50 rounded-2xl p-5 sm:p-6">
+            <h2 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+              <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Study Habits
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Quizzes Taken */}
+              <div className="bg-gray-800/40 rounded-xl p-4 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-400">{totalQuizzes}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">Quizzes Taken</p>
+                </div>
+              </div>
+              {/* Avg Score */}
+              <div className="bg-gray-800/40 rounded-xl p-4 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-emerald-400">{avgQuizScore}%</p>
+                  <p className="text-gray-500 text-xs mt-0.5">Avg Score</p>
+                </div>
+              </div>
+              {/* Flashcards */}
+              <div className="bg-gray-800/40 rounded-xl p-4 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-1.011.672-1.866 1.595-2.147m14.81 0H4.595" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-purple-400">{flashcardsReviewed}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">Cards Reviewed</p>
+                </div>
+              </div>
+              {/* Study Time */}
+              <div className="bg-gray-800/40 rounded-xl p-4 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-amber-400">{totalStudyHours}h</p>
+                  <p className="text-gray-500 text-xs mt-0.5">Study Time</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Smart Alerts */}
+        {/* ===== SMART ALERTS ===== */}
         {weakChapters.length > 0 && (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="bg-gray-900/80 border border-gray-800/50 rounded-2xl p-5 sm:p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
               Smart Alerts
             </h2>
             <div className="space-y-3">
-              {weakChapters.map((ch) => (
-                <div
-                  key={ch.chapter}
-                  className="flex items-center gap-3 bg-red-950/30 border border-red-900/40 rounded-lg p-3"
-                >
-                  <span className="text-red-400 text-lg">!</span>
-                  <div>
-                    <p className="text-white text-sm font-medium">
-                      Chapter {ch.chapter} needs attention
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      Average score: {ch.avgScore}% across {ch.attempts}{" "}
-                      {ch.attempts === 1 ? "attempt" : "attempts"}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/quiz?chapter=${ch.chapter}`}
-                    className="ml-auto text-xs text-blue-400 hover:text-blue-300 shrink-0"
+              {weakChapters.map((ch) => {
+                const borderColor =
+                  ch.avgScore < 25
+                    ? "border-l-red-500 bg-red-950/20"
+                    : ch.avgScore < 40
+                    ? "border-l-orange-500 bg-orange-950/20"
+                    : "border-l-amber-500 bg-amber-950/20";
+                const iconColor =
+                  ch.avgScore < 25
+                    ? "text-red-400"
+                    : ch.avgScore < 40
+                    ? "text-orange-400"
+                    : "text-amber-400";
+
+                return (
+                  <div
+                    key={ch.chapter}
+                    className={`flex items-center gap-4 rounded-xl p-4 border-l-4 ${borderColor} touch-manipulation`}
                   >
-                    Practice now
-                  </Link>
-                </div>
-              ))}
+                    <div className={`shrink-0 ${iconColor}`}>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-white text-sm font-medium">
+                        Chapter {ch.chapter} needs attention
+                      </p>
+                      <p className="text-gray-400 text-xs mt-0.5">
+                        Average score: {ch.avgScore}% across {ch.attempts}{" "}
+                        {ch.attempts === 1 ? "attempt" : "attempts"}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/quiz?chapter=${ch.chapter}`}
+                      className="shrink-0 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-2 rounded-lg transition-colors touch-manipulation"
+                    >
+                      Practice
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

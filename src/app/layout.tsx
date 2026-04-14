@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavWrapper from "@/components/nav-wrapper";
+import TextSelectionPopup from "@/components/text-selection-popup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col pb-16">
         {children}
         <NavWrapper />
+        <TextSelectionPopup />
       </body>
     </html>
   );
