@@ -398,6 +398,7 @@ function QuizSession() {
 
     // Calculate chapter breakdown of wrong answers
     const wrongByChapter = new Map<number, number>();
+    const missedQuestionIds: string[] = [];
     questions.forEach((q, i) => {
       const answer = answers[i];
       if (answer && answer.selected !== q.correct_answer) {
@@ -405,6 +406,7 @@ function QuizSession() {
           q.chapter,
           (wrongByChapter.get(q.chapter) || 0) + 1
         );
+        missedQuestionIds.push(q.id);
       }
     });
     const wrongChapters = Array.from(wrongByChapter.entries()).sort(
@@ -436,6 +438,40 @@ function QuizSession() {
               )}
             </p>
           </div>
+
+          {/* Drill Your Weak Spots Button */}
+          {missedQuestionIds.length > 0 && (
+            <Link
+              href={`/quiz/drill?missed=${missedQuestionIds.join(",")}`}
+              className="w-full mb-6 p-4 rounded-2xl bg-gradient-to-r from-red-600/20 to-orange-600/20 border border-red-500/30 hover:border-red-400/50 transition-all flex items-center gap-4 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center text-2xl shrink-0">
+                🎯
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-semibold text-red-300 group-hover:text-red-200 transition-colors">
+                  Drill Your Weak Spots
+                </div>
+                <div className="text-sm text-gray-400">
+                  Review flashcards and re-quiz on the {missedQuestionIds.length}{" "}
+                  question{missedQuestionIds.length !== 1 ? "s" : ""} you missed
+                </div>
+              </div>
+              <svg
+                className="w-5 h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          )}
 
           {/* Chapter Breakdown for Wrong Answers */}
           {wrongChapters.length > 0 && (
