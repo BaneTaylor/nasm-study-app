@@ -18,10 +18,9 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  // TODO: Re-enable once onboarding is built in Phase 2
-  // if (profile && !profile.onboarding_completed) {
-  //   redirect("/onboarding");
-  // }
+  if (profile && !profile.onboarding_completed) {
+    redirect("/onboarding");
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 p-6">
