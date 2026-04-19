@@ -433,6 +433,12 @@ export default function LessonPage({
           updateConceptMastery={updateConceptMastery}
         />
       )}
+      {(lesson.type === "offline" || lesson.type === "feynman") && (
+        <OfflineMode
+          lesson={lesson}
+          onComplete={handleLessonComplete}
+        />
+      )}
     </div>
   );
 }
@@ -1469,6 +1475,109 @@ function ReviewMode({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// =============================================================================
+// OFFLINE / FEYNMAN MODE
+// =============================================================================
+function OfflineMode({ lesson, onComplete }: { lesson: Lesson; onComplete: (score: number) => void }) {
+  const exercise = lesson.offlineExercise;
+  const isFeynman = lesson.type === "feynman";
+  const [phase, setPhase] = useState<"intro" | "doing" | "reflect" | "feedback">("intro");
+  const [elapsed, setElapsed] = useState(0);
+  const [response, setResponse] = useState("");
+  const [aiFeedback, setAiFeedback] = useState("");
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+
+  useEffect(() => {
+    if (phase !== "doing") return;
+    const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(interval);
+  }, [phase]);
+
+  if (!exercise) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="text-center">
+          <p className="text-gray-400 mb-4">This exercise isn&apos;t available yet.</p>
+          <button onClick={() => onComplete(80)} className="px-6 py-3 bg-blue-600 text-white rounded-xl">Skip &amp; Continue</button>
+        </div>
+      </div>
+    );
+  }
+
+  const icons: Record<string, string> = { write: "✍️", move: "🏃", teach: "🗣️", speak: "🎤", "self-assess": "🔍" };
+  const labels: Record<string, string> = { write: "Write It Down", move: "Move Your Body", teach: "Teach Someone", speak: "Say It Out Loud", "self-assess": "Self-Assessment" };
+
+  async function submitReflection() {
+    if (!exercise?.aiReviewEnabled) { onComplete(80); return; }
+    setLoadingFeedback(true);
+    setPhase("feedback");
+    try {
+      const prompt = isFeynman
+        ? `A student was asked to explain "${lesson.feynmanTopic || lesson.title}" in their own words. Here is what they wrote: "${response}". Score 1-5. Identify what they got right, what they missed, fill gaps. Be encouraging but specific.`
+        : `A student completed an offline exercise. Instruction: "${exercise.instruction}". Their response: "${response}". Review their understanding. What did they get right? What did they miss?`;
+      const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: prompt, history: [] }) });
+      if (res.ok) {
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("text/event-stream")) {
+          const reader = res.body?.getReader();
+          const dec = new TextDecoder();
+          let full = "";
+          if (reader) { while (true) { const { done, value } = await reader.read(); if (done) break; for (const line of dec.decode(value).split("\n")) { if (line.startsWith("data: ") && line !== "data: [DONE]") full += line.slice(6); } } }
+          setAiFeedback(full || "Great effort!");
+        } else { const d = await res.json(); setAiFeedback(d.reply || d.response || "Great effort!"); }
+      }
+    } catch { setAiFeedback("Great effort! Keep practicing."); }
+    setLoadingFeedback(false);
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <div className="max-w-lg w-full">
+        {phase === "intro" && (
+          <div className="text-center space-y-6 animate-fade-in">
+            <div className="text-6xl">{isFeynman ? "🧠" : (icons[exercise.type] || "📝")}</div>
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-sm font-medium">{isFeynman ? "Feynman Synthesis" : (labels[exercise.type] || "Offline Exercise")}</div>
+            <h2 className="text-xl font-bold text-white">{lesson.title}</h2>
+            <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 text-left"><p className="text-gray-200 leading-relaxed text-lg">{exercise.instruction}</p></div>
+            <p className="text-gray-500 text-sm">~{exercise.timeMinutes} minutes</p>
+            {isFeynman
+              ? <button onClick={() => setPhase("reflect")} className="w-full py-4 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-xl text-lg">Start Writing</button>
+              : <button onClick={() => setPhase("doing")} className="w-full py-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl text-lg">I&apos;m ready</button>
+            }
+          </div>
+        )}
+        {phase === "doing" && (
+          <div className="text-center space-y-6 animate-fade-in">
+            <div className="text-5xl">{icons[exercise.type] || "📝"}</div>
+            <p className="text-gray-400">Exercise in progress...</p>
+            <div className="text-4xl font-mono text-white">{Math.floor(elapsed / 60)}:{(elapsed % 60).toString().padStart(2, "0")}</div>
+            <p className="text-gray-500 text-sm">Do the exercise. Come back when done.</p>
+            <button onClick={() => setPhase("reflect")} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl text-lg">Done — let me reflect</button>
+          </div>
+        )}
+        {phase === "reflect" && (
+          <div className="space-y-4 animate-fade-in">
+            <h3 className="text-lg font-bold text-white">{isFeynman ? `Explain "${lesson.feynmanTopic || lesson.title}" in your own words:` : exercise.verificationPrompt}</h3>
+            <textarea value={response} onChange={(e) => setResponse(e.target.value)} placeholder="Type your response here..." rows={8} className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none" />
+            <button onClick={submitReflection} disabled={response.length < 10} className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 disabled:from-gray-700 disabled:to-gray-700 text-white font-semibold rounded-xl">{exercise.aiReviewEnabled ? "Submit for AI Review" : "Complete"}</button>
+          </div>
+        )}
+        {phase === "feedback" && (
+          <div className="space-y-4 animate-fade-in">
+            {loadingFeedback
+              ? <div className="text-center py-12"><div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" /><p className="text-gray-400">AI is reviewing...</p></div>
+              : <>
+                  <div className="bg-gray-900 border border-blue-500/30 rounded-2xl p-6"><p className="text-gray-200 leading-relaxed whitespace-pre-wrap">{aiFeedback}</p></div>
+                  <button onClick={() => onComplete(80)} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl text-lg">Continue</button>
+                </>
+            }
+          </div>
+        )}
+      </div>
     </div>
   );
 }
