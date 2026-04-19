@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { scenarios } from "@/lib/scenarios/scenario-data";
 import { createClient } from "@/lib/supabase/client";
@@ -33,6 +33,7 @@ const categoryLabels: Record<string, string> = {
   "phase-selection": "OPT Phase Selection",
   "exercise-selection": "Exercise Selection",
   programming: "Program Design",
+  "client-communication": "Client Communication",
 };
 
 const categoryColors: Record<string, string> = {
@@ -40,7 +41,54 @@ const categoryColors: Record<string, string> = {
   "phase-selection": "text-purple-400",
   "exercise-selection": "text-amber-400",
   programming: "text-emerald-400",
+  "client-communication": "text-rose-400",
 };
+
+const categoryBgColors: Record<string, string> = {
+  assessment: "bg-cyan-500/10 border-cyan-500/30",
+  "phase-selection": "bg-purple-500/10 border-purple-500/30",
+  "exercise-selection": "bg-amber-500/10 border-amber-500/30",
+  programming: "bg-emerald-500/10 border-emerald-500/30",
+  "client-communication": "bg-rose-500/10 border-rose-500/30",
+};
+
+// ASCII assessment diagrams for certain question categories
+function AssessmentDiagram({ category }: { category: string }) {
+  if (category === "assessment") {
+    return (
+      <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 mb-4 font-mono text-[10px] leading-tight text-gray-500">
+        <p className="text-gray-400 text-[10px] font-sans font-semibold mb-1 uppercase tracking-wider">Overhead Squat Assessment View</p>
+        <pre className="whitespace-pre text-center">{`
+     O
+    /|\\      Arms: Forward? Elevated?
+   / | \\     Torso: Forward lean?
+     |        Spine: Lordosis? Kyphosis?
+    / \\       Hips: Shift? Tilt?
+   /   \\      Knees: Valgus? Varus?
+  /     \\     Feet: Turn out? Flatten?
+ /       \\
+`}</pre>
+      </div>
+    );
+  }
+  if (category === "phase-selection") {
+    return (
+      <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 mb-4 font-mono text-[10px] leading-tight text-gray-500">
+        <p className="text-gray-400 text-[10px] font-sans font-semibold mb-1 uppercase tracking-wider">OPT Model Phases</p>
+        <pre className="whitespace-pre">{`
+Phase 1: Stabilization Endurance
+Phase 2: Strength Endurance
+ -------- Strength Level --------
+Phase 3: Hypertrophy (Muscular Dev.)
+Phase 4: Maximal Strength
+ --------- Power Level ----------
+Phase 5: Power
+`}</pre>
+      </div>
+    );
+  }
+  return null;
+}
 
 export default function ScenarioDetailPage({
   params,
@@ -57,6 +105,9 @@ export default function ScenarioDetailPage({
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [finished, setFinished] = useState(false);
   const [savedResult, setSavedResult] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(true);
+  const [aiFeedback, setAiFeedback] = useState<string | null>(null);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
 
   const supabase = createClient();
 
@@ -64,6 +115,18 @@ export default function ScenarioDetailPage({
   const correctCount = answers.filter(
     (a, i) => scenario && a === scenario.steps[i].correctAnswer
   ).length;
+
+  // Category accuracy tracking
+  const categoryAccuracy = useMemo(() => {
+    if (!scenario || !finished) return {};
+    const cats: Record<string, { correct: number; total: number }> = {};
+    scenario.steps.forEach((s, i) => {
+      if (!cats[s.category]) cats[s.category] = { correct: 0, total: 0 };
+      cats[s.category].total++;
+      if (answers[i] === s.correctAnswer) cats[s.category].correct++;
+    });
+    return cats;
+  }, [scenario, answers, finished]);
 
   const saveResult = useCallback(
     async (score: number, total: number) => {
@@ -86,6 +149,45 @@ export default function ScenarioDetailPage({
       }
     },
     [supabase, scenarioId]
+  );
+
+  const fetchAIFeedback = useCallback(
+    async (finalAnswers: (number | null)[]) => {
+      if (!scenario) return;
+      setLoadingFeedback(true);
+      try {
+        const review = scenario.steps.map((s, i) => ({
+          question: s.question,
+          userAnswer: finalAnswers[i] !== null && finalAnswers[i] !== undefined ? s.options[finalAnswers[i]!] : "No answer",
+          correctAnswer: s.options[s.correctAnswer],
+          wasCorrect: finalAnswers[i] === s.correctAnswer,
+          category: s.category,
+        }));
+
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: "user",
+                content: `You are a NASM CPT exam coach. A student just completed a client scenario called "${scenario.title}" about ${scenario.client.name} (${scenario.client.age}yo ${scenario.client.gender}, ${scenario.client.occupation}). Here is their performance:\n\n${JSON.stringify(review, null, 2)}\n\nGive brief, personalized feedback (3-4 sentences) on their program design choices. Focus on patterns of strength and weakness across categories. If they got everything right, affirm their reasoning. If they missed questions, explain the NASM principle they should review. Be encouraging but specific.`,
+              },
+            ],
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setAiFeedback(data.response || data.message || data.content || "Feedback unavailable.");
+        }
+      } catch {
+        setAiFeedback(null);
+      } finally {
+        setLoadingFeedback(false);
+      }
+    },
+    [scenario]
   );
 
   if (!scenario) {
@@ -140,24 +242,19 @@ export default function ScenarioDetailPage({
       setShowExplanation(false);
     } else {
       setFinished(true);
-      const finalCorrect = answers.filter(
+      const finalAnswers = [...answers];
+      const finalCorrect = finalAnswers.filter(
         (a, i) => a === scenario!.steps[i].correctAnswer
       ).length;
-      // Include current step in count if not already recorded
-      const lastCorrect =
-        selectedAnswer === step.correctAnswer ? 1 : 0;
-      const alreadyCounted = answers[currentStep] !== null && answers[currentStep] !== undefined;
-      const totalCorrect = alreadyCounted
-        ? finalCorrect
-        : finalCorrect + lastCorrect;
-      saveResult(totalCorrect, totalSteps);
+      saveResult(finalCorrect, totalSteps);
+      fetchAIFeedback(finalAnswers);
     }
   }
 
   const scorePercent =
     totalSteps > 0 ? Math.round((correctCount / totalSteps) * 100) : 0;
 
-  // Finished / Review Screen
+  // ── Finished / Review Screen ──────────────────────────────
   if (finished) {
     const finalAnswers = [...answers];
     const finalCorrectCount = finalAnswers.filter(
@@ -173,28 +270,19 @@ export default function ScenarioDetailPage({
             href="/scenarios"
             className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             All Scenarios
           </Link>
 
           {/* Score Card */}
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 mb-6 text-center">
-            <h1 className="text-2xl font-bold text-white mb-2">
+            <h1 className="text-2xl font-bold text-white mb-1">
               Scenario Complete
             </h1>
-            <p className="text-gray-400 mb-6">{scenario.title}</p>
+            <p className="text-gray-400 mb-1">{scenario.title}</p>
+            <p className="text-xs text-gray-600 mb-6">Domain: {scenario.domain}</p>
             <div
               className={`text-6xl font-bold mb-2 ${
                 finalPercent >= 80
@@ -216,8 +304,7 @@ export default function ScenarioDetailPage({
             )}
             {finalPercent >= 60 && finalPercent < 80 && (
               <p className="text-yellow-400 text-sm mt-2 font-medium">
-                Good effort. Review the explanations below to strengthen weak
-                areas.
+                Good effort. Review the explanations below to strengthen weak areas.
               </p>
             )}
             {finalPercent < 60 && (
@@ -227,6 +314,54 @@ export default function ScenarioDetailPage({
             )}
             {savedResult && (
               <p className="text-gray-600 text-xs mt-3">Result saved</p>
+            )}
+          </div>
+
+          {/* Category Accuracy Breakdown */}
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-3">Accuracy by Category</h2>
+            <div className="space-y-2">
+              {Object.entries(categoryAccuracy).map(([cat, data]) => {
+                const pct = Math.round((data.correct / data.total) * 100);
+                return (
+                  <div key={cat} className="flex items-center gap-3">
+                    <span className={`text-xs font-medium w-40 ${categoryColors[cat] ?? "text-gray-400"}`}>
+                      {categoryLabels[cat] ?? cat}
+                    </span>
+                    <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-yellow-500" : "bg-red-500"
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400 w-16 text-right">
+                      {data.correct}/{data.total} ({pct}%)
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* AI Feedback */}
+          <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-5 sm:p-6 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              AI Coach Feedback
+            </h2>
+            {loadingFeedback ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                Analyzing your program design choices...
+              </div>
+            ) : aiFeedback ? (
+              <p className="text-sm text-gray-300 leading-relaxed">{aiFeedback}</p>
+            ) : (
+              <p className="text-sm text-gray-500">AI feedback unavailable. Review the explanations below for detailed guidance.</p>
             )}
           </div>
 
@@ -252,32 +387,12 @@ export default function ScenarioDetailPage({
                       }`}
                     >
                       {isCorrect ? (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       )}
                     </div>
@@ -303,6 +418,18 @@ export default function ScenarioDetailPage({
                   <p className="text-xs text-gray-500 ml-9 leading-relaxed">
                     {s.explanation}
                   </p>
+                  {/* Study link for wrong answers */}
+                  {!isCorrect && s.relatedChapter && (
+                    <Link
+                      href={`/chapters/${s.relatedChapter}`}
+                      className="ml-9 mt-2 inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      Study Ch. {s.relatedChapter}: {NASM_CHAPTER_NAMES[s.relatedChapter] ?? ""}
+                    </Link>
+                  )}
                 </div>
               );
             })}
@@ -351,6 +478,8 @@ export default function ScenarioDetailPage({
                 setAnswers([]);
                 setFinished(false);
                 setSavedResult(false);
+                setAiFeedback(null);
+                setLoadingFeedback(false);
               }}
               className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl px-6 py-4 min-h-[56px] flex items-center justify-center transition-colors"
             >
@@ -362,7 +491,7 @@ export default function ScenarioDetailPage({
     );
   }
 
-  // Active Scenario
+  // ── Active Scenario ──────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-950 p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
@@ -372,35 +501,28 @@ export default function ScenarioDetailPage({
             href="/scenarios"
             className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             Exit
           </Link>
-          <div className="text-sm text-gray-400">
-            Score:{" "}
-            <span className="text-white font-semibold">{correctCount}</span>/
-            {answers.length || currentStep}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-gray-600 font-medium uppercase tracking-wider">{scenario.domain}</span>
+            <div className="text-sm text-gray-400">
+              Score:{" "}
+              <span className="text-white font-semibold">{correctCount}</span>/
+              {answers.filter((a) => a !== null && a !== undefined).length || "0"}
+            </div>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
             <span>
               Step {currentStep + 1} of {totalSteps}
             </span>
-            <span>
+            <span className={categoryColors[step.category] ?? "text-gray-400"}>
               {categoryLabels[step.category] ?? step.category}
             </span>
           </div>
@@ -412,8 +534,7 @@ export default function ScenarioDetailPage({
               }}
             />
           </div>
-          {/* Step dots */}
-          <div className="flex gap-1.5 mt-2 justify-center">
+          <div className="flex gap-1.5 mt-2 justify-center flex-wrap">
             {scenario.steps.map((_, i) => (
               <div
                 key={i}
@@ -431,72 +552,80 @@ export default function ScenarioDetailPage({
           </div>
         </div>
 
-        {/* Client Profile Card (collapsible on mobile) */}
-        <details className="group bg-gray-900 border border-gray-800 rounded-2xl mb-6 overflow-hidden">
-          <summary className="p-4 sm:p-5 cursor-pointer list-none flex items-center justify-between hover:bg-gray-800/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                {scenario.client.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </div>
-              <div>
-                <h2 className="text-white font-semibold text-sm sm:text-base">
-                  {scenario.client.name}
-                </h2>
-                <p className="text-xs text-gray-400">
-                  {scenario.client.age} y/o {scenario.client.gender} &middot;{" "}
-                  {scenario.client.occupation}
-                </p>
-              </div>
-            </div>
-            <svg
-              className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform flex-shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+        {/* Client Profile Card — collapsible, sticky */}
+        <div className="sticky top-0 z-20 mb-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="w-full p-4 sm:p-5 flex items-center justify-between hover:bg-gray-800/50 transition-colors"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </summary>
-          <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-800 pt-4 space-y-3">
-            <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Goals
-              </h3>
-              <p className="text-sm text-gray-300">{scenario.client.goals}</p>
-            </div>
-            <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                History
-              </h3>
-              <p className="text-sm text-gray-300">{scenario.client.history}</p>
-            </div>
-            <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Assessment Findings
-              </h3>
-              <p className="text-sm text-gray-300">
-                {scenario.client.assessmentFindings}
-              </p>
-            </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  {scenario.client.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </div>
+                <div className="text-left">
+                  <h2 className="text-white font-semibold text-sm sm:text-base">
+                    {scenario.client.name}
+                  </h2>
+                  <p className="text-xs text-gray-400">
+                    {scenario.client.age} y/o {scenario.client.gender} &middot;{" "}
+                    {scenario.client.occupation}
+                  </p>
+                </div>
+              </div>
+              <svg
+                className={`w-5 h-5 text-gray-500 transition-transform flex-shrink-0 ${profileOpen ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {profileOpen && (
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-800 pt-4 space-y-3">
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Goals
+                  </h3>
+                  <p className="text-sm text-gray-300">{scenario.client.goals}</p>
+                </div>
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    History
+                  </h3>
+                  <p className="text-sm text-gray-300">{scenario.client.history}</p>
+                </div>
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Assessment Findings
+                  </h3>
+                  <p className="text-sm text-gray-300">
+                    {scenario.client.assessmentFindings}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
-        </details>
+        </div>
 
         {/* Question */}
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 mb-4">
-          <span
-            className={`text-xs font-medium ${categoryColors[step.category] ?? "text-gray-400"}`}
-          >
-            {categoryLabels[step.category] ?? step.category}
-          </span>
-          <h3 className="text-white font-semibold text-base sm:text-lg mt-2 mb-5 leading-relaxed">
+          {/* Category badge */}
+          <div className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border mb-3 ${categoryBgColors[step.category] ?? "bg-gray-800 border-gray-700"}`}>
+            <span className={categoryColors[step.category] ?? "text-gray-400"}>
+              {categoryLabels[step.category] ?? step.category}
+            </span>
+          </div>
+
+          {/* Assessment diagram */}
+          <AssessmentDiagram category={step.category} />
+
+          <h3 className="text-white font-semibold text-base sm:text-lg mb-5 leading-relaxed">
             {step.question}
           </h3>
 
@@ -552,32 +681,12 @@ export default function ScenarioDetailPage({
                       }`}
                     >
                       {showResult && isCorrect ? (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       ) : showResult && isSelected && !isCorrect ? (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       ) : (
                         String.fromCharCode(65 + i)
@@ -616,6 +725,18 @@ export default function ScenarioDetailPage({
             <p className="text-sm text-gray-300 leading-relaxed">
               {step.explanation}
             </p>
+            {/* Study link for wrong answer */}
+            {selectedAnswer !== step.correctAnswer && step.relatedChapter && (
+              <Link
+                href={`/chapters/${step.relatedChapter}`}
+                className="mt-3 inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Study this topic: Ch. {step.relatedChapter} - {NASM_CHAPTER_NAMES[step.relatedChapter] ?? ""}
+              </Link>
+            )}
           </div>
         )}
 
@@ -628,18 +749,8 @@ export default function ScenarioDetailPage({
             {currentStep < totalSteps - 1 ? (
               <>
                 Next Question
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </>
             ) : (

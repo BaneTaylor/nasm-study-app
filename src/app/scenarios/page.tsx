@@ -83,6 +83,11 @@ export default function ScenariosPage() {
                     </span>
                   </div>
 
+                  {/* Domain badge */}
+                  <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-3">
+                    {scenario.domain}
+                  </p>
+
                   {/* Client info */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-300">
