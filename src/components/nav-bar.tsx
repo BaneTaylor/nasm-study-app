@@ -2,31 +2,61 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "./theme-toggle";
 
 const primaryNav = [
-  { href: "/campaign", label: "Learn", icon: "🎓" },
-  { href: "/dashboard", label: "Home", icon: "🏠" },
-  { href: "/quiz", label: "Quiz", icon: "📝" },
-  { href: "/coach", label: "Coach", icon: "🤖" },
-  { href: "/stats", label: "Stats", icon: "📊" },
+  { href: "/campaign", label: "Learn", icon: "\u{1F393}" },
+  { href: "/dashboard", label: "Home", icon: "\u{1F3E0}" },
+  { href: "/review", label: "Review", icon: "\u{1F504}" },
+  { href: "/coach", label: "Coach", icon: "\u{1F916}" },
+  { href: "/stats", label: "Stats", icon: "\u{1F4CA}" },
 ];
 
 const moreNav = [
-  { href: "/flashcards", label: "Flashcards", icon: "🗂️" },
-  { href: "/chapters", label: "Chapters", icon: "📖" },
-  { href: "/anatomy", label: "Anatomy", icon: "🦴" },
-  { href: "/scenarios", label: "Scenarios", icon: "🏋️" },
-  { href: "/schedule", label: "Schedule", icon: "📅" },
-  { href: "/exam-mode", label: "Exam Mode", icon: "🏆" },
-  { href: "/share", label: "Share", icon: "📤" },
-  { href: "/settings", label: "Settings", icon: "⚙️" },
+  { href: "/flashcards", label: "Flashcards", icon: "\u{1F5C2}\uFE0F" },
+  { href: "/quiz", label: "Quiz", icon: "\u{1F4DD}" },
+  { href: "/chapters", label: "Chapters", icon: "\u{1F4D6}" },
+  { href: "/anatomy", label: "Anatomy", icon: "\u{1F9B4}" },
+  { href: "/scenarios", label: "Scenarios", icon: "\u{1F3CB}\uFE0F" },
+  { href: "/schedule", label: "Schedule", icon: "\u{1F4C5}" },
+  { href: "/exam-mode", label: "Exam Mode", icon: "\u{1F3C6}" },
+  { href: "/share", label: "Share", icon: "\u{1F4E4}" },
+  { href: "/settings", label: "Settings", icon: "\u2699\uFE0F" },
 ];
 
 export default function NavBar() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
+  const [hasDueCards, setHasDueCards] = useState(false);
+
+  useEffect(() => {
+    async function checkDueCards() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const now = new Date().toISOString();
+
+      const { count: fcCount } = await supabase
+        .from("flashcard_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .lte("next_review_at", now);
+
+      const { count: qCount } = await supabase
+        .from("question_progress")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .lte("next_review_at", now);
+
+      setHasDueCards(((fcCount ?? 0) + (qCount ?? 0)) > 0);
+    }
+    checkDueCards();
+  }, [pathname]);
 
   const isMoreActive = moreNav.some(
     (item) =>
@@ -81,7 +111,7 @@ export default function NavBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center px-3 py-1 min-w-[48px] text-xs transition-colors ${
+                className={`relative flex flex-col items-center px-3 py-1 min-w-[48px] text-xs transition-colors ${
                   isActive
                     ? "text-blue-400"
                     : "text-gray-500 hover:text-gray-300"
@@ -89,6 +119,9 @@ export default function NavBar() {
               >
                 <span className="text-lg">{item.icon}</span>
                 <span>{item.label}</span>
+                {item.href === "/review" && hasDueCards && (
+                  <span className="absolute top-0 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                )}
               </Link>
             );
           })}
