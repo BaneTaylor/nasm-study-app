@@ -1,3 +1,10 @@
+export type CorrectiveExercise = {
+  inhibit: string;
+  lengthen: string;
+  activate: string;
+  integrate: string;
+};
+
 export type Muscle = {
   id: string;
   name: string;
@@ -9,6 +16,13 @@ export type Muscle = {
   commonImbalance: string;
   exercises: string[];
   nasmTip: string;
+  correctiveExercise: CorrectiveExercise;
+  assessmentLink: string;
+  concentricAction: string;
+  eccentricAction: string;
+  isometricExample: string;
+  typicallyOveractive: boolean;
+  typicallyUnderactive: boolean;
 };
 
 export const muscles: Muscle[] = [
@@ -31,6 +45,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Key underactive muscle in Lower Crossed Syndrome. Needs activation before squat patterns. Inhibited by prolonged sitting.",
+    correctiveExercise: {
+      inhibit: "Foam roll piriformis and hip rotators, 30 seconds each side",
+      lengthen: "Supine piriformis stretch, hold 30 seconds each side",
+      activate: "Floor glute bridge with drawing-in maneuver, 2x15",
+      integrate: "Squat to row, 2x15 with controlled tempo",
+    },
+    assessmentLink: "Overhead squat — excessive forward lean (hip extension weakness)",
+    concentricAction: "Extends the hip (standing up from a squat, climbing stairs)",
+    eccentricAction: "Controls hip flexion (lowering into a squat or sitting down)",
+    isometricExample: "Holding the top of a glute bridge",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "gluteus-medius",
@@ -50,6 +76,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Weakness causes knee valgus (knees caving in) during overhead squat assessment. Critical for frontal plane stabilization.",
+    correctiveExercise: {
+      inhibit: "Foam roll TFL and IT band, 30 seconds each side",
+      lengthen: "Standing TFL stretch, hold 30 seconds each side",
+      activate: "Side-lying hip abduction, 2x15 each side",
+      integrate: "Single-leg squat with proper frontal plane alignment, 2x10",
+    },
+    assessmentLink: "Overhead squat — knees move inward (valgus)",
+    concentricAction: "Abducts the hip (stepping sideways, stabilizing pelvis in gait)",
+    eccentricAction: "Controls hip adduction (landing from a jump, single-leg stance)",
+    isometricExample: "Holding single-leg stance with level hips",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "iliopsoas",
@@ -69,6 +107,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Primary overactive muscle in Lower Crossed Syndrome. Tight hip flexors = anterior pelvic tilt = low back pain. Lengthen before strengthening glutes.",
+    correctiveExercise: {
+      inhibit: "Foam roll hip flexors (prone position), 30 seconds each side",
+      lengthen: "Half-kneeling hip flexor stretch, hold 30 seconds each side",
+      activate: "Floor glute bridge, 2x15 (reciprocal inhibition)",
+      integrate: "Step-up to balance, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — excessive forward lean, anterior pelvic tilt",
+    concentricAction: "Flexes the hip (lifting the knee, walking uphill)",
+    eccentricAction: "Controls hip extension (lowering the leg during walking)",
+    isometricExample: "Holding the knee at 90 degrees in a marching position",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "rectus-femoris",
@@ -88,6 +138,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "The only quadriceps muscle that crosses both the hip and knee joints. Often overactive with hip flexor dominance.",
+    correctiveExercise: {
+      inhibit: "Foam roll anterior thigh (quad region), 30 seconds each side",
+      lengthen: "Standing quad stretch with posterior pelvic tilt, hold 30 seconds",
+      activate: "Floor glute bridge, 2x15 (reciprocal inhibition of hip flexor)",
+      integrate: "Lunge to balance, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — excessive forward lean, anterior pelvic tilt",
+    concentricAction: "Extends the knee (kicking a ball) and flexes the hip",
+    eccentricAction: "Controls knee flexion (lowering into a squat, walking downstairs)",
+    isometricExample: "Holding a wall sit position at 90 degrees",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "vastus-lateralis",
@@ -107,6 +169,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Lateral dominance over the VMO can cause lateral patellar tracking. Foam rolling the VL can help restore balance.",
+    correctiveExercise: {
+      inhibit: "Foam roll lateral thigh (vastus lateralis), 30 seconds each side",
+      lengthen: "Side-lying quad stretch, hold 30 seconds each side",
+      activate: "Terminal knee extension with band, 2x15 (targets VMO)",
+      integrate: "Single-leg squat to bench, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — knees move inward (lateral quad dominance pattern)",
+    concentricAction: "Extends the knee (standing up, climbing stairs)",
+    eccentricAction: "Controls knee flexion (sitting down, descending stairs)",
+    isometricExample: "Holding leg extension at full extension for 5 seconds",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "vastus-medialis",
@@ -126,6 +200,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Critical for medial patellar stabilization. Weakness here plus overactive VL = patellofemoral pain syndrome.",
+    correctiveExercise: {
+      inhibit: "Foam roll lateral thigh (VL) and IT band, 30 seconds each",
+      lengthen: "Standing TFL stretch, hold 30 seconds each side",
+      activate: "Terminal knee extension with band, 2x15 each side",
+      integrate: "Step-down (from 6-inch step) with controlled alignment, 2x10",
+    },
+    assessmentLink: "Overhead squat — knees move inward, lateral patellar tracking",
+    concentricAction: "Extends the last 15 degrees of knee extension, stabilizes patella",
+    eccentricAction: "Controls the final range of knee flexion from full extension",
+    isometricExample: "Holding terminal knee extension against a band for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "biceps-femoris",
@@ -146,6 +232,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Part of the synergistic dominance pattern: hamstrings take over for weak glutes. Often overactive in Lower Crossed Syndrome.",
+    correctiveExercise: {
+      inhibit: "Foam roll posterior thigh (hamstrings), 30 seconds each side",
+      lengthen: "Supine hamstring stretch with strap, hold 30 seconds",
+      activate: "Floor glute bridge, 2x15 (reactivate glute max)",
+      integrate: "Ball squat with proper hip hinge, 2x15",
+    },
+    assessmentLink: "Overhead squat — excessive forward lean (hamstring compensating for weak glutes)",
+    concentricAction: "Flexes the knee (leg curl) and extends the hip (deadlift)",
+    eccentricAction: "Controls knee extension (decelerating a kick or during running)",
+    isometricExample: "Holding the top of a single-leg deadlift position",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "semimembranosus",
@@ -165,6 +263,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Medial hamstring — assists with internal tibial rotation. Along with other hamstrings, often compensates for weak glutes.",
+    correctiveExercise: {
+      inhibit: "Foam roll medial hamstring, 30 seconds each side",
+      lengthen: "Supine hamstring stretch with strap, hold 30 seconds",
+      activate: "Floor glute bridge, 2x15",
+      integrate: "Romanian deadlift to balance, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — excessive forward lean (hamstring synergistic dominance)",
+    concentricAction: "Flexes the knee and extends the hip",
+    eccentricAction: "Controls knee extension during swing phase of gait",
+    isometricExample: "Holding a prone knee flexion at 90 degrees against resistance",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "semitendinosus",
@@ -185,6 +295,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Inserts at the pes anserinus. Remember: the three hamstrings share an origin at the ischial tuberosity (except short head of biceps femoris).",
+    correctiveExercise: {
+      inhibit: "Foam roll medial hamstring, 30 seconds each side",
+      lengthen: "Standing hamstring stretch on elevated surface, hold 30 seconds",
+      activate: "Floor glute bridge, 2x15",
+      integrate: "Single-leg Romanian deadlift, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — excessive forward lean (hamstring synergistic dominance)",
+    concentricAction: "Flexes the knee and extends the hip during sprinting and bending",
+    eccentricAction: "Decelerates knee extension during running and kicking",
+    isometricExample: "Holding a single-leg bridge at top position",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "gastrocnemius",
@@ -204,6 +326,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Crosses both the knee and ankle joints. If tight, it limits ankle dorsiflexion, causing compensations up the kinetic chain during squats.",
+    correctiveExercise: {
+      inhibit: "Foam roll calves (gastrocnemius), 30 seconds each side",
+      lengthen: "Standing calf stretch (straight knee) on wall, hold 30 seconds",
+      activate: "Standing anterior tibialis raise (dorsiflexion), 2x15",
+      integrate: "Single-leg calf raise with proper alignment, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — heels rise off floor, feet turn out",
+    concentricAction: "Plantarflexes the ankle (pushing off during walking, jumping)",
+    eccentricAction: "Controls dorsiflexion (landing from a jump, lowering into a squat)",
+    isometricExample: "Holding a single-leg calf raise at top position",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "soleus",
@@ -223,6 +357,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Only crosses the ankle joint (unlike gastroc). Tested with bent-knee calf stretch. Key contributor to ankle restriction.",
+    correctiveExercise: {
+      inhibit: "Foam roll calves (soleus, knee bent position), 30 seconds each side",
+      lengthen: "Wall calf stretch with bent knee, hold 30 seconds each side",
+      activate: "Standing anterior tibialis raise (dorsiflexion), 2x15",
+      integrate: "Multiplanar calf raise, 2x10 each direction",
+    },
+    assessmentLink: "Overhead squat — heels rise off floor, feet turn out, limited ankle dorsiflexion",
+    concentricAction: "Plantarflexes the ankle during walking and standing postural control",
+    eccentricAction: "Controls dorsiflexion during the stance phase of gait",
+    isometricExample: "Holding a seated calf raise at top position",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "tibialis-anterior",
@@ -242,6 +388,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Underactive tibialis anterior = poor ankle dorsiflexion control. Strengthen to combat pronation distortion syndrome.",
+    correctiveExercise: {
+      inhibit: "Foam roll calves (gastroc and soleus), 30 seconds each side",
+      lengthen: "Standing calf stretch (straight and bent knee), hold 30 seconds",
+      activate: "Resisted dorsiflexion with band, 2x15 each side",
+      integrate: "Single-leg balance reach with dorsiflexion emphasis, 2x10",
+    },
+    assessmentLink: "Overhead squat — feet flatten (pronation), heels rise",
+    concentricAction: "Dorsiflexes the ankle (lifts the foot during swing phase of gait)",
+    eccentricAction: "Controls plantarflexion (lowers the foot after heel strike)",
+    isometricExample: "Holding the foot in dorsiflexion against resistance for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "adductors",
@@ -261,6 +419,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Overactive adductors + underactive glute medius = knee valgus. Foam roll adductors and activate glute medius to correct.",
+    correctiveExercise: {
+      inhibit: "Foam roll adductors (inner thigh), 30 seconds each side",
+      lengthen: "Side-lying adductor stretch or seated butterfly stretch, hold 30 seconds",
+      activate: "Side-lying hip abduction, 2x15 each side (reciprocal inhibition)",
+      integrate: "Lateral tube walking, 2x10 steps each direction",
+    },
+    assessmentLink: "Overhead squat — knees move inward (valgus)",
+    concentricAction: "Adducts the hip (bringing legs together, kicking across body)",
+    eccentricAction: "Controls hip abduction (landing with legs apart, lateral lunge descent)",
+    isometricExample: "Squeezing a ball between the knees in a bridge position",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "tfl",
@@ -280,6 +450,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "TFL being overactive for glute medius is a classic NASM compensation pattern. Inhibit TFL, then activate glute medius.",
+    correctiveExercise: {
+      inhibit: "Foam roll TFL and IT band, 30 seconds each side",
+      lengthen: "Standing TFL stretch, hold 30 seconds each side",
+      activate: "Side-lying hip abduction (glute medius focus), 2x15 each side",
+      integrate: "Single-leg squat with proper alignment, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — knees move inward (TFL/IT band overactivity)",
+    concentricAction: "Abducts, flexes, and internally rotates the hip",
+    eccentricAction: "Controls hip adduction and external rotation during landing",
+    isometricExample: "Holding hip in abducted position with internal rotation",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
 
   // ── CORE ────────────────────────────────────────────────
@@ -301,6 +483,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Unilateral tightness causes lateral pelvic tilt. Often involved in low-back pain patterns.",
+    correctiveExercise: {
+      inhibit: "Foam roll lateral low back (QL area) with tennis ball, 30 seconds each side",
+      lengthen: "Side-lying QL stretch over foam roller, hold 30 seconds each side",
+      activate: "Side plank from knees, 2x15-second holds each side",
+      integrate: "Single-leg Romanian deadlift, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — lateral shift of trunk, hip hiking during gait",
+    concentricAction: "Laterally flexes the trunk and hikes the hip",
+    eccentricAction: "Controls contralateral lateral trunk flexion during gait",
+    isometricExample: "Holding a suitcase carry (unilateral farmer's walk)",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "erector-spinae",
@@ -320,6 +514,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Overactive erector spinae = excessive lumbar extension during overhead squat. Part of Lower Crossed Syndrome overactive pattern.",
+    correctiveExercise: {
+      inhibit: "Foam roll thoracic and lumbar erectors, 30 seconds",
+      lengthen: "Cat-camel stretch (flexion phase), hold 30 seconds",
+      activate: "Floor bridge with drawing-in maneuver, 2x15",
+      integrate: "Ball squat with neutral spine, 2x15",
+    },
+    assessmentLink: "Overhead squat — excessive lumbar extension (arched low back)",
+    concentricAction: "Extends the spine (standing up from a bent-over position)",
+    eccentricAction: "Controls spinal flexion (bending forward with control)",
+    isometricExample: "Holding a bird-dog position with opposite arm and leg extended",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "rectus-abdominis",
@@ -339,6 +545,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Underactive in Lower Crossed Syndrome. Works with glutes to produce posterior pelvic tilt, counteracting excessive lordosis.",
+    correctiveExercise: {
+      inhibit: "Foam roll hip flexors (reciprocal muscle), 30 seconds each side",
+      lengthen: "Half-kneeling hip flexor stretch, hold 30 seconds (lengthen antagonist)",
+      activate: "Reverse crunch with drawing-in maneuver, 2x15",
+      integrate: "Ball crunch with controlled tempo, 2x15",
+    },
+    assessmentLink: "Overhead squat — excessive lumbar extension, anterior pelvic tilt",
+    concentricAction: "Flexes the trunk (crunch, sit-up motion)",
+    eccentricAction: "Controls trunk extension (lowering back down from a crunch)",
+    isometricExample: "Holding a crunch at the top with shoulders off the ground",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "transverse-abdominis",
@@ -359,6 +577,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "NASM emphasizes the drawing-in maneuver (pulling navel toward spine) to activate TVA. Foundation of core stabilization training.",
+    correctiveExercise: {
+      inhibit: "Foam roll hip flexors and thoracolumbar region, 30 seconds",
+      lengthen: "Cat-camel stretch, hold 30 seconds",
+      activate: "Drawing-in maneuver in supine, progress to quadruped, 2x15",
+      integrate: "Plank with drawing-in maneuver, 2x15-second holds",
+    },
+    assessmentLink: "Overhead squat — excessive lumbar extension, poor trunk stability",
+    concentricAction: "Compresses the abdomen (forced exhalation, coughing, bracing)",
+    eccentricAction: "Controls abdominal expansion during inhalation and trunk movement",
+    isometricExample: "Holding a drawing-in maneuver for 10 seconds while breathing",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "internal-obliques",
@@ -379,6 +609,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Works with contralateral external oblique for trunk rotation. Part of the local stabilization system with the TVA.",
+    correctiveExercise: {
+      inhibit: "Foam roll lateral trunk and hip flexors, 30 seconds",
+      lengthen: "Seated trunk rotation stretch, hold 30 seconds each side",
+      activate: "Side plank from knees, 2x15-second holds each side",
+      integrate: "Cable rotation with proper core engagement, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — trunk rotation compensation during movement",
+    concentricAction: "Rotates the trunk to the same side and laterally flexes",
+    eccentricAction: "Controls contralateral trunk rotation (decelerating a throw)",
+    isometricExample: "Holding a Pallof press at arms' length for 10 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "external-obliques",
@@ -399,6 +641,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Right external oblique + left internal oblique = left trunk rotation. Know the force-couple for rotation questions.",
+    correctiveExercise: {
+      inhibit: "Foam roll lateral trunk, 30 seconds each side",
+      lengthen: "Standing lateral trunk stretch, hold 30 seconds each side",
+      activate: "Side plank with hip abduction, 2x10-second holds each side",
+      integrate: "Cable woodchop (high to low), 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — trunk rotation or lateral shift",
+    concentricAction: "Rotates the trunk to the opposite side and laterally flexes",
+    eccentricAction: "Controls ipsilateral trunk rotation (decelerating a backhand)",
+    isometricExample: "Holding a side plank position for 15 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
 
   // ── UPPER BODY ──────────────────────────────────────────
@@ -421,6 +675,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Overactive lats can limit overhead arm raise during assessment. Often needs to be lengthened in Upper Crossed Syndrome.",
+    correctiveExercise: {
+      inhibit: "Foam roll latissimus dorsi (lateral trunk/armpit area), 30 seconds each side",
+      lengthen: "Standing lat stretch (arm overhead, lean away), hold 30 seconds each side",
+      activate: "Prone floor cobra, 2x15",
+      integrate: "Squat to row with proper posture, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, limited shoulder flexion",
+    concentricAction: "Extends the shoulder (pull-up, rowing), adducts and internally rotates",
+    eccentricAction: "Controls shoulder flexion (lowering from a pull-up)",
+    isometricExample: "Holding a flexed-arm hang (chin-up hold at top)",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "upper-trapezius",
@@ -440,6 +706,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Classic overactive muscle in Upper Crossed Syndrome. Compensates for weak lower/mid traps and deep cervical flexors.",
+    correctiveExercise: {
+      inhibit: "Foam roll upper trapezius, 30 seconds each side",
+      lengthen: "Upper trap stretch (lateral neck flexion), hold 30 seconds each side",
+      activate: "Prone Y raise (lower trap activation), 2x15",
+      integrate: "Overhead squat with proper arm position, 2x10",
+    },
+    assessmentLink: "Overhead squat — shoulder elevation, arms fall forward",
+    concentricAction: "Elevates the scapula (shrugging the shoulders)",
+    eccentricAction: "Controls scapular depression (lowering a heavy bag from overhead)",
+    isometricExample: "Holding a farmer's carry with heavy dumbbells",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "mid-trapezius",
@@ -459,6 +737,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Underactive in Upper Crossed Syndrome. Strengthen with scapular retraction exercises to improve posture.",
+    correctiveExercise: {
+      inhibit: "Foam roll pec major and pec minor, 30 seconds each side",
+      lengthen: "Doorway chest stretch (pectorals), hold 30 seconds",
+      activate: "Prone T raise (scapular retraction), 2x15",
+      integrate: "Standing cable row with retraction emphasis, 2x15",
+    },
+    assessmentLink: "Overhead squat — rounded shoulders, scapular protraction",
+    concentricAction: "Retracts the scapula (pulling shoulder blades together)",
+    eccentricAction: "Controls scapular protraction (reaching forward slowly)",
+    isometricExample: "Holding a band pull-apart at end range for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "lower-trapezius",
@@ -478,6 +768,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Key underactive muscle in Upper Crossed Syndrome. Pairs with serratus anterior for proper upward scapular rotation.",
+    correctiveExercise: {
+      inhibit: "Foam roll upper trapezius and levator scapulae, 30 seconds each",
+      lengthen: "Upper trap stretch and lat stretch, hold 30 seconds each",
+      activate: "Prone Y raise (lower trap isolation), 2x15",
+      integrate: "Overhead squat progression with focus on arm position, 2x10",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, shoulder elevation",
+    concentricAction: "Depresses the scapula and assists upward rotation during overhead movement",
+    eccentricAction: "Controls scapular elevation (lowering arms from overhead)",
+    isometricExample: "Holding a prone Y raise at top position for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "rhomboids",
@@ -498,6 +800,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Underactive in Upper Crossed Syndrome. Work with mid traps to retract scapulae and combat rounded shoulder posture.",
+    correctiveExercise: {
+      inhibit: "Foam roll pec major and pec minor, 30 seconds each side",
+      lengthen: "Doorway pec stretch, hold 30 seconds",
+      activate: "Prone reverse fly (scapular retraction), 2x15",
+      integrate: "Standing cable row with retraction squeeze, 2x15",
+    },
+    assessmentLink: "Overhead squat — rounded shoulders, scapular winging",
+    concentricAction: "Retracts and downwardly rotates the scapula",
+    eccentricAction: "Controls scapular protraction during reaching and pushing",
+    isometricExample: "Holding a band pull-apart at end range retraction for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "pectoralis-major",
@@ -519,6 +833,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Major overactive muscle in Upper Crossed Syndrome. Needs to be inhibited/lengthened before activating mid/lower traps.",
+    correctiveExercise: {
+      inhibit: "Foam roll pectoralis major with tennis ball against wall, 30 seconds each side",
+      lengthen: "Doorway pec stretch (90-degree arm position), hold 30 seconds each side",
+      activate: "Prone Y-T-W raises, 2x10 of each letter",
+      integrate: "Standing cable row to external rotation, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, rounded shoulders",
+    concentricAction: "Horizontally adducts the arm (bench press, hugging motion)",
+    eccentricAction: "Controls horizontal abduction (lowering weight during fly)",
+    isometricExample: "Holding a push-up at the bottom position for 5 seconds",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "pectoralis-minor",
@@ -538,6 +864,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Tight pec minor = anterior scapular tilt = shoulder impingement. Always assess and lengthen in Upper Crossed Syndrome.",
+    correctiveExercise: {
+      inhibit: "Foam roll pec minor with lacrosse ball, 30 seconds each side",
+      lengthen: "Corner pec minor stretch (arms above 90 degrees), hold 30 seconds",
+      activate: "Prone lower trap raise (Y raise), 2x15",
+      integrate: "Cable face pull with external rotation, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, scapular protraction and anterior tilt",
+    concentricAction: "Protracts and anteriorly tilts the scapula",
+    eccentricAction: "Controls scapular retraction and posterior tilt",
+    isometricExample: "Holding a push-up plus position (protracted scapula at top)",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "anterior-deltoid",
@@ -557,6 +895,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Overactive anterior deltoid can cause forward shoulder movement during pushing exercises. Balance with posterior deltoid work.",
+    correctiveExercise: {
+      inhibit: "Foam roll anterior deltoid with lacrosse ball, 30 seconds each side",
+      lengthen: "Standing posterior shoulder stretch (arm across body), hold 30 seconds",
+      activate: "Prone reverse fly (posterior deltoid), 2x15",
+      integrate: "Single-arm cable row to external rotation, 2x10 each side",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, forward shoulder posture",
+    concentricAction: "Flexes the shoulder (raising the arm forward) and horizontally adducts",
+    eccentricAction: "Controls shoulder extension (lowering arm from overhead)",
+    isometricExample: "Holding a front raise at 90 degrees for 5 seconds",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "medial-deltoid",
@@ -576,6 +926,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Works with supraspinatus for the first 90 degrees of shoulder abduction. Upper trap compensates when deltoid is weak.",
+    correctiveExercise: {
+      inhibit: "Foam roll upper trapezius, 30 seconds each side",
+      lengthen: "Upper trap stretch (lateral neck flexion), hold 30 seconds",
+      activate: "Lateral raise with controlled tempo (2/0/2), 2x15",
+      integrate: "Overhead press with proper scapular mechanics, 2x10",
+    },
+    assessmentLink: "Overhead squat — shoulder elevation or hiking during abduction",
+    concentricAction: "Abducts the shoulder (raising arm out to the side)",
+    eccentricAction: "Controls shoulder adduction (lowering arm from lateral raise)",
+    isometricExample: "Holding a lateral raise at 90 degrees for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: false,
   },
   {
     id: "posterior-deltoid",
@@ -595,6 +957,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Strengthen posterior deltoid to balance anterior dominance. Important for shoulder health and posture correction.",
+    correctiveExercise: {
+      inhibit: "Foam roll pec major and anterior deltoid, 30 seconds each side",
+      lengthen: "Doorway pec stretch, hold 30 seconds each side",
+      activate: "Prone reverse fly, 2x15",
+      integrate: "Cable face pull to external rotation, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, rounded shoulder posture",
+    concentricAction: "Horizontally abducts the shoulder (reverse fly) and extends",
+    eccentricAction: "Controls horizontal adduction (lowering during a reverse fly)",
+    isometricExample: "Holding a reverse fly at end range for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "biceps-brachii",
@@ -615,6 +989,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Long head crosses the shoulder joint. Biceps tendon is a common site of impingement. Know both heads' origins.",
+    correctiveExercise: {
+      inhibit: "Foam roll biceps with lacrosse ball, 30 seconds each side",
+      lengthen: "Standing biceps wall stretch (arm extended behind), hold 30 seconds",
+      activate: "Prone lat pulldown motion (scapular depression), 2x15",
+      integrate: "Standing cable row emphasizing lat engagement, 2x15",
+    },
+    assessmentLink: "Pulling assessment — biceps compensate for weak lats",
+    concentricAction: "Flexes the elbow (curling a dumbbell) and supinates the forearm",
+    eccentricAction: "Controls elbow extension (lowering a weight during a curl)",
+    isometricExample: "Holding a flexed-arm hang on a chin-up bar",
+    typicallyOveractive: false,
+    typicallyUnderactive: false,
   },
   {
     id: "triceps-brachii",
@@ -635,6 +1021,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Long head crosses the shoulder joint (origin at infraglenoid tubercle). Three heads but one common insertion on the olecranon.",
+    correctiveExercise: {
+      inhibit: "Foam roll triceps, 30 seconds each side",
+      lengthen: "Overhead triceps stretch, hold 30 seconds each side",
+      activate: "Triceps pushdown with controlled tempo, 2x15",
+      integrate: "Push-up with proper alignment and full extension, 2x10",
+    },
+    assessmentLink: "Pushing assessment — elbow extension control during pressing movements",
+    concentricAction: "Extends the elbow (pushing, pressing, throwing)",
+    eccentricAction: "Controls elbow flexion (lowering a weight during a press)",
+    isometricExample: "Holding a push-up at the top position with elbows locked",
+    typicallyOveractive: false,
+    typicallyUnderactive: false,
   },
   {
     id: "supraspinatus",
@@ -655,6 +1053,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Most commonly injured rotator cuff muscle. Initiates abduction before deltoid takes over. Remember: SITS (Supraspinatus, Infraspinatus, Teres minor, Subscapularis).",
+    correctiveExercise: {
+      inhibit: "Foam roll upper trapezius and pec minor, 30 seconds each",
+      lengthen: "Cross-body shoulder stretch, hold 30 seconds each side",
+      activate: "Full can raise (thumb up) to 90 degrees, 2x15",
+      integrate: "Overhead press with controlled scapular mechanics, 2x10",
+    },
+    assessmentLink: "Overhead squat — shoulder elevation compensating for weak supraspinatus",
+    concentricAction: "Initiates the first 15 degrees of shoulder abduction",
+    eccentricAction: "Controls the return from abduction in the first 15 degrees",
+    isometricExample: "Holding arm at 15 degrees abduction against resistance",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "infraspinatus",
@@ -674,6 +1084,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Key external rotator of the shoulder. Weakness allows internal rotation dominance and increases impingement risk.",
+    correctiveExercise: {
+      inhibit: "Foam roll pec major and lat, 30 seconds each side",
+      lengthen: "Doorway pec stretch, hold 30 seconds each side",
+      activate: "Side-lying external rotation, 2x15 each side",
+      integrate: "Cable row to external rotation, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, internal rotation dominance",
+    concentricAction: "Externally rotates the shoulder (rotating arm outward)",
+    eccentricAction: "Controls internal rotation (decelerating a throw)",
+    isometricExample: "Holding external rotation at 90/90 position against resistance",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "teres-minor",
@@ -693,6 +1115,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Works with infraspinatus for external rotation. Part of SITS. Smaller but critical for glenohumeral stability.",
+    correctiveExercise: {
+      inhibit: "Foam roll pec major and subscapularis area, 30 seconds each",
+      lengthen: "Sleeper stretch (gentle), hold 30 seconds each side",
+      activate: "Side-lying external rotation, 2x15 each side",
+      integrate: "Standing cable external rotation at 0 degrees abduction, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, internal rotation dominance",
+    concentricAction: "Externally rotates the shoulder and stabilizes humeral head",
+    eccentricAction: "Controls internal rotation during throwing deceleration",
+    isometricExample: "Holding external rotation against a doorframe for 5 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
   {
     id: "subscapularis",
@@ -712,6 +1146,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Only rotator cuff muscle that internally rotates. Inserts on the lesser tubercle (other 3 SITS muscles insert on greater tubercle).",
+    correctiveExercise: {
+      inhibit: "Foam roll anterior shoulder and pec with lacrosse ball, 30 seconds each",
+      lengthen: "Sleeper stretch or doorway internal rotation stretch, hold 30 seconds",
+      activate: "Side-lying external rotation (reciprocal inhibition), 2x15 each side",
+      integrate: "Cable row to external rotation, 2x15",
+    },
+    assessmentLink: "Overhead squat — arms fall forward, excessive internal shoulder rotation",
+    concentricAction: "Internally rotates the shoulder (reaching behind the back)",
+    eccentricAction: "Controls external rotation (decelerating the arm during a throw)",
+    isometricExample: "Holding internal rotation against a doorframe for 5 seconds",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "levator-scapulae",
@@ -731,6 +1177,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Overactive in Upper Crossed Syndrome along with upper traps. Chronically tight from desk work and stress.",
+    correctiveExercise: {
+      inhibit: "Self-myofascial release with lacrosse ball on levator scapulae, 30 seconds each side",
+      lengthen: "Levator scapulae stretch (look down and rotate chin to armpit), hold 30 seconds each side",
+      activate: "Chin tuck with lower trap activation, 2x15",
+      integrate: "Cable face pull with chin tuck, 2x15",
+    },
+    assessmentLink: "Overhead squat — shoulder elevation, head forward posture",
+    concentricAction: "Elevates the scapula and laterally flexes the neck",
+    eccentricAction: "Controls scapular depression and contralateral neck flexion",
+    isometricExample: "Holding a shrug position at top for 5 seconds",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "scm",
@@ -751,6 +1209,18 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Forward head posture = overactive SCM/upper traps + underactive deep cervical flexors. Key for Upper Crossed Syndrome.",
+    correctiveExercise: {
+      inhibit: "Self-myofascial release on SCM (gentle pressure), 30 seconds each side",
+      lengthen: "SCM stretch (extend neck, rotate away, slight lateral flex), hold 30 seconds each side",
+      activate: "Chin tucks (deep cervical flexor activation), 2x15",
+      integrate: "Chin tuck with scapular retraction during seated row, 2x15",
+    },
+    assessmentLink: "Overhead squat — forward head posture",
+    concentricAction: "Flexes the neck bilaterally; rotates and laterally flexes unilaterally",
+    eccentricAction: "Controls neck extension and contralateral rotation",
+    isometricExample: "Holding a chin tuck position for 10 seconds (isometric cervical retraction)",
+    typicallyOveractive: true,
+    typicallyUnderactive: false,
   },
   {
     id: "deep-cervical-flexors",
@@ -771,5 +1241,17 @@ export const muscles: Muscle[] = [
     ],
     nasmTip:
       "Key underactive muscle in Upper Crossed Syndrome. Chin tucks are the primary corrective exercise. Think: opposite of forward head posture.",
+    correctiveExercise: {
+      inhibit: "Foam roll upper trapezius and SCM (overactive antagonists), 30 seconds each",
+      lengthen: "Upper trap stretch and SCM stretch, hold 30 seconds each side",
+      activate: "Chin tucks (supine, then seated, then standing), 2x15",
+      integrate: "Seated row with chin tuck, maintaining cervical retraction, 2x15",
+    },
+    assessmentLink: "Overhead squat — forward head posture",
+    concentricAction: "Flexes the cervical spine and performs chin tuck (cervical retraction)",
+    eccentricAction: "Controls cervical extension (prevents head from jutting forward)",
+    isometricExample: "Holding a chin tuck position for 10 seconds",
+    typicallyOveractive: false,
+    typicallyUnderactive: true,
   },
 ];
