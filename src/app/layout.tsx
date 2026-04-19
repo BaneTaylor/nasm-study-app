@@ -63,7 +63,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col pb-16">
+      <body className="min-h-full flex flex-col pb-16 bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900">
         <ThemeProvider>
           {children}
           <NavWrapper />

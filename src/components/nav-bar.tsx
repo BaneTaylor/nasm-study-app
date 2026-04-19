@@ -68,7 +68,7 @@ export default function NavBar() {
       {/* More menu overlay */}
       {showMore && (
         <div className="fixed inset-0 z-40" onClick={() => setShowMore(false)}>
-          <div className="absolute bottom-16 left-0 right-0 bg-gray-900 border-t border-gray-800 p-4 shadow-2xl">
+          <div className="absolute bottom-16 left-0 right-0 bg-gray-900/95 backdrop-blur-xl border-t border-gray-800 p-4 shadow-2xl animate-fade-in">
             <div className="max-w-lg mx-auto">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm font-medium text-gray-400">More</span>
@@ -84,10 +84,10 @@ export default function NavBar() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setShowMore(false)}
-                      className={`flex flex-col items-center p-3 rounded-xl transition-colors ${
+                      className={`flex flex-col items-center p-3 rounded-xl transition-all duration-200 ${
                         isActive
                           ? "text-blue-400 bg-blue-600/10"
-                          : "text-gray-400 hover:text-white hover:bg-gray-800"
+                          : "text-gray-400 hover:text-white hover:bg-gray-800 hover:scale-105"
                       }`}
                     >
                       <span className="text-xl mb-1">{item.icon}</span>
@@ -102,7 +102,7 @@ export default function NavBar() {
       )}
 
       {/* Main nav bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-gray-900/80 border-t border-gray-800 z-50">
         <div className="max-w-lg mx-auto flex justify-around items-center py-2">
           {primaryNav.map((item) => {
             const isActive =
@@ -111,30 +111,36 @@ export default function NavBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex flex-col items-center px-3 py-1 min-w-[48px] text-xs transition-colors ${
+                className={`relative flex flex-col items-center px-3 py-1 min-w-[48px] text-xs transition-all duration-200 ${
                   isActive
                     ? "text-blue-400"
-                    : "text-gray-500 hover:text-gray-300"
+                    : "text-gray-500 hover:text-gray-300 hover:scale-105"
                 }`}
               >
                 <span className="text-lg">{item.icon}</span>
                 <span>{item.label}</span>
+                {isActive && (
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                )}
                 {item.href === "/review" && hasDueCards && (
-                  <span className="absolute top-0 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                  <span className="absolute top-0 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse-gentle" />
                 )}
               </Link>
             );
           })}
           <button
             onClick={() => setShowMore(!showMore)}
-            className={`flex flex-col items-center px-3 py-1 min-w-[48px] text-xs transition-colors ${
+            className={`relative flex flex-col items-center px-3 py-1 min-w-[48px] text-xs transition-all duration-200 ${
               showMore || isMoreActive
                 ? "text-blue-400"
-                : "text-gray-500 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-300 hover:scale-105"
             }`}
           >
-            <span className="text-lg">•••</span>
+            <span className="text-lg">&bull;&bull;&bull;</span>
             <span>More</span>
+            {(showMore || isMoreActive) && (
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full" />
+            )}
           </button>
         </div>
       </nav>

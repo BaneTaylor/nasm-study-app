@@ -2,14 +2,25 @@
 // NASM CPT Campaign Curriculum — Units, Stages, and Lessons
 // =============================================================================
 
+export type OfflineExercise = {
+  type: "write" | "move" | "teach" | "speak" | "self-assess";
+  icon: string;
+  instruction: string;
+  timeMinutes: number;
+  verificationPrompt: string;
+  aiReviewEnabled: boolean;
+};
+
 export type Lesson = {
   id: string;
   title: string;
-  type: "learn" | "flashcards" | "quiz" | "scenario" | "review";
+  type: "learn" | "flashcards" | "quiz" | "scenario" | "review" | "offline" | "feynman";
   description: string;
   xpReward: number;
   prerequisites?: string[];
   content?: LearnContent | FlashcardContent | QuizContent | ScenarioContent;
+  offlineExercise?: OfflineExercise;
+  feynmanTopic?: string;
 };
 
 export type Stage = {
@@ -260,6 +271,31 @@ const curriculum: Unit[] = [
               ],
             } as QuizContent,
           },
+          {
+            id: "u1-s1-l4",
+            title: "Offline: Scope of Practice Recall",
+            type: "offline",
+            description: "Write down everything you remember about scope of practice — no peeking.",
+            xpReward: 20,
+            prerequisites: ["u1-s1-l3"],
+            offlineExercise: {
+              type: "write",
+              icon: "📝",
+              instruction: "Close the app. On paper, write down everything you remember about what personal trainers can and cannot do (scope of practice). Don't look anything up. Come back and type what you wrote.",
+              timeMinutes: 5,
+              verificationPrompt: "Type what you wrote on paper:",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u1-s1-l5",
+            title: "Feynman: Evidence-Based Practice",
+            type: "feynman",
+            description: "Explain evidence-based practice in your own words.",
+            xpReward: 25,
+            prerequisites: ["u1-s1-l4"],
+            feynmanTopic: "Evidence-based practice in personal training and its three components",
+          },
         ],
       },
       {
@@ -369,12 +405,28 @@ const curriculum: Unit[] = [
           },
           {
             id: "u1-s2-l4",
+            title: "Offline: Teach the Kinetic Chain",
+            type: "offline",
+            description: "Explain the OPT model phases to someone out loud.",
+            xpReward: 20,
+            prerequisites: ["u1-s2-l3"],
+            offlineExercise: {
+              type: "teach",
+              icon: "🗣️",
+              instruction: "Find someone nearby (roommate, friend, family member, or even a pet). Explain the 5 phases of the OPT model in under 90 seconds — name each phase and one key feature of each. Come back and describe how it went.",
+              timeMinutes: 3,
+              verificationPrompt: "How did your explanation go? What did you forget or struggle to explain?",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u1-s2-l5",
             title: "Unit 1 Review",
             type: "review",
             description:
               "Adaptive review of all concepts from Unit 1 so far.",
             xpReward: 25,
-            prerequisites: ["u1-s2-l3"],
+            prerequisites: ["u1-s2-l4"],
           },
         ],
       },
@@ -541,6 +593,22 @@ const curriculum: Unit[] = [
               ],
             } as QuizContent,
           },
+          {
+            id: "u2-s1-l4",
+            title: "Offline: Draw the Nervous System",
+            type: "offline",
+            description: "Sketch the CNS and PNS from memory and label key parts.",
+            xpReward: 20,
+            prerequisites: ["u2-s1-l3"],
+            offlineExercise: {
+              type: "write",
+              icon: "📝",
+              instruction: "Draw the 3 planes of motion on paper. For each plane, write one exercise that occurs in it. Don't look anything up first.",
+              timeMinutes: 5,
+              verificationPrompt: "Describe what you drew and which exercises you chose:",
+              aiReviewEnabled: true,
+            },
+          },
         ],
       },
       {
@@ -671,11 +739,36 @@ const curriculum: Unit[] = [
           },
           {
             id: "u2-s2-l4",
+            title: "Offline: Feel Your Muscle Fibers",
+            type: "offline",
+            description: "Experience autogenic inhibition and compare stretching techniques.",
+            xpReward: 20,
+            prerequisites: ["u2-s2-l3"],
+            offlineExercise: {
+              type: "self-assess",
+              icon: "🔍",
+              instruction: "Hold a stretch on your hamstring for 30 seconds. Notice the moment your muscle relaxes — that's autogenic inhibition via the GTO. Now try a quick dynamic stretch. Notice how different it feels. Write down the difference.",
+              timeMinutes: 5,
+              verificationPrompt: "Describe what you felt during the static vs dynamic stretch:",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u2-s2-l5",
+            title: "Feynman: Muscle Fiber Types",
+            type: "feynman",
+            description: "Explain Type I vs Type II muscle fibers like you're teaching a beginner.",
+            xpReward: 25,
+            prerequisites: ["u2-s2-l4"],
+            feynmanTopic: "The differences between Type I, Type IIa, and Type IIx muscle fibers — what they do, when they're recruited, and why it matters for training",
+          },
+          {
+            id: "u2-s2-l6",
             title: "Unit 2 Review",
             type: "review",
             description: "Adaptive review of human movement science concepts.",
             xpReward: 25,
-            prerequisites: ["u2-s2-l3"],
+            prerequisites: ["u2-s2-l5"],
           },
         ],
       },
@@ -820,6 +913,31 @@ const curriculum: Unit[] = [
               ],
             } as QuizContent,
           },
+          {
+            id: "u3-s1-l5",
+            title: "Offline: Overhead Squat Self-Check",
+            type: "offline",
+            description: "Perform an overhead squat and observe your own compensations.",
+            xpReward: 20,
+            prerequisites: ["u3-s1-l4"],
+            offlineExercise: {
+              type: "move",
+              icon: "🏃",
+              instruction: "Stand up. Perform 5 slow overhead squats. Pay attention to: Do your knees cave in? Does your back arch? Do your arms fall forward? Write down what you noticed.",
+              timeMinutes: 3,
+              verificationPrompt: "What compensations did you notice in your own overhead squat?",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u3-s1-l6",
+            title: "Feynman: Risk Stratification",
+            type: "feynman",
+            description: "Explain the client screening process to a new trainer.",
+            xpReward: 25,
+            prerequisites: ["u3-s1-l5"],
+            feynmanTopic: "The client health screening process: PAR-Q+, risk stratification, and when to refer to a physician",
+          },
         ],
       },
     ],
@@ -935,6 +1053,38 @@ const curriculum: Unit[] = [
                 },
               ],
             } as QuizContent,
+          },
+          {
+            id: "u4-s1-l4",
+            title: "Offline: Activate Your Core",
+            type: "offline",
+            description: "Practice the drawing-in maneuver and bracing — feel the difference.",
+            xpReward: 20,
+            prerequisites: ["u4-s1-l3"],
+            offlineExercise: {
+              type: "move",
+              icon: "🏃",
+              instruction: "Stand up. First, perform the drawing-in maneuver: pull your navel toward your spine and hold for 10 seconds. Feel your deep stabilizers engage. Next, practice bracing: tighten all your core muscles as if someone was about to punch your stomach. Hold 10 seconds. Do each 3 times. Write down: which felt easier? Could you breathe normally during each?",
+              timeMinutes: 4,
+              verificationPrompt: "Describe the difference between the drawing-in maneuver and bracing. Which was harder? Could you breathe during each?",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u4-s1-l5",
+            title: "Offline: Teach Core Training Progression",
+            type: "offline",
+            description: "Explain core training progression out loud to lock it in.",
+            xpReward: 20,
+            prerequisites: ["u4-s1-l4"],
+            offlineExercise: {
+              type: "speak",
+              icon: "🎤",
+              instruction: "Record yourself (voice memo on your phone) explaining the core training progression through the OPT model: what exercises go with stabilization, strength, and power? Speak for at least 60 seconds. Then listen back. Come back and describe what you said well and what you missed.",
+              timeMinutes: 4,
+              verificationPrompt: "What did you cover in your recording? What did you miss or get wrong when you listened back?",
+              aiReviewEnabled: true,
+            },
           },
         ],
       },
@@ -1054,6 +1204,47 @@ const curriculum: Unit[] = [
               ],
             } as QuizContent,
           },
+          {
+            id: "u5-s1-l4",
+            title: "Offline: Calorie Math on Paper",
+            type: "offline",
+            description: "Calculate macros for a meal by hand — no calculator.",
+            xpReward: 20,
+            prerequisites: ["u5-s1-l3"],
+            offlineExercise: {
+              type: "write",
+              icon: "📝",
+              instruction: "On paper, write down what you ate for your last meal (or make one up). Estimate the grams of protein, carbs, and fat. Then calculate total calories by hand using the calorie-per-gram values. Show your work. Come back and type your calculations.",
+              timeMinutes: 5,
+              verificationPrompt: "Type your meal, the macros you estimated, and your calorie calculation (show the math):",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u5-s1-l5",
+            title: "Offline: Scope of Practice Role-Play",
+            type: "offline",
+            description: "Practice responding when a client asks for a meal plan.",
+            xpReward: 20,
+            prerequisites: ["u5-s1-l4"],
+            offlineExercise: {
+              type: "speak",
+              icon: "🎤",
+              instruction: "Imagine a client says: 'Can you write me a meal plan? I want to lose 20 pounds.' Practice your response out loud — staying within scope of practice while still being helpful. Say it at least twice until it feels natural. Come back and type what you said.",
+              timeMinutes: 3,
+              verificationPrompt: "What did you say to the client? How did you balance being helpful with staying in scope?",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u5-s1-l6",
+            title: "Feynman: Macronutrients",
+            type: "feynman",
+            description: "Explain all three macronutrients as if teaching a client.",
+            xpReward: 25,
+            prerequisites: ["u5-s1-l5"],
+            feynmanTopic: "The three macronutrients (protein, carbohydrates, fat): calorie values, functions in the body, and general guidelines for active individuals",
+          },
         ],
       },
     ],
@@ -1109,11 +1300,36 @@ const curriculum: Unit[] = [
           },
           {
             id: "u6-s1-l3",
+            title: "Offline: Full Brain Dump",
+            type: "offline",
+            description: "Write down everything you know — the ultimate recall exercise.",
+            xpReward: 25,
+            prerequisites: ["u6-s1-l2"],
+            offlineExercise: {
+              type: "self-assess",
+              icon: "🔍",
+              instruction: "Get a blank piece of paper. Set a timer for 10 minutes. Write down EVERYTHING you can remember about the NASM CPT material: OPT model phases, muscle fiber types, assessment procedures, scope of practice, nutrition guidelines, core training, nervous system — all of it. Don't organize, just dump. When the timer goes off, come back and describe what you remembered and what you know you forgot.",
+              timeMinutes: 12,
+              verificationPrompt: "What topics did you cover in your brain dump? What major areas did you realize you forgot or are weak on?",
+              aiReviewEnabled: true,
+            },
+          },
+          {
+            id: "u6-s1-l4",
+            title: "Feynman: The OPT Model Complete",
+            type: "feynman",
+            description: "Explain the entire OPT model as if teaching a new trainer.",
+            xpReward: 30,
+            prerequisites: ["u6-s1-l3"],
+            feynmanTopic: "The complete NASM OPT model: all 5 phases, their rep ranges, exercise types, progressions, and how to determine which phase a client should start in",
+          },
+          {
+            id: "u6-s1-l5",
             title: "Final Assessment",
             type: "quiz",
             description: "Comprehensive final quiz covering all units.",
             xpReward: 50,
-            prerequisites: ["u6-s1-l2"],
+            prerequisites: ["u6-s1-l4"],
             content: {
               questions: [
                 {

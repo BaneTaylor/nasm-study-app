@@ -36,7 +36,9 @@ export default function RadarChart({ data, size = 300, onDomainClick }: RadarCha
     requestAnimationFrame(animate);
   }, []);
 
-  const center = size / 2;
+  const padding = 80;
+  const svgSize = size + padding * 2;
+  const center = svgSize / 2;
   const radius = size * 0.35;
   const labelRadius = size * 0.47;
   const sides = data.length;
@@ -79,7 +81,7 @@ export default function RadarChart({ data, size = 300, onDomainClick }: RadarCha
 
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`0 0 ${svgSize} ${svgSize}`}
       width="100%"
       height="100%"
       className="max-w-full"
@@ -157,7 +159,7 @@ export default function RadarChart({ data, size = 300, onDomainClick }: RadarCha
             dominantBaseline="central"
             className="cursor-pointer select-none"
             fill="rgb(209, 213, 219)"
-            fontSize={size * 0.035}
+            fontSize={10}
             fontWeight={500}
             onClick={() => onDomainClick?.(d.label)}
           >
@@ -175,7 +177,7 @@ export default function RadarChart({ data, size = 300, onDomainClick }: RadarCha
             x={center + 4}
             y={y - 4}
             fill="rgb(107, 114, 128)"
-            fontSize={size * 0.028}
+            fontSize={8}
             textAnchor="start"
           >
             {level}%

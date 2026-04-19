@@ -3,10 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./logout-button";
 import Link from "next/link";
 import FunFactWrapper from "./fun-fact-wrapper";
-import Greeting from "./greeting";
-import ExamReadinessBadge from "@/components/exam-readiness-badge";
 import RadarWrapper from "./radar-wrapper";
 import { chapterDomains, domainLabels } from "@/lib/design-system";
+import { getCurriculum, getAllLessons } from "@/lib/campaign/curriculum";
+import OfflineExercise from "./offline-exercise";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
   todayStart.setHours(0, 0, 0, 0);
   const todayISO = todayStart.toISOString();
 
-  const [quizRes, flashcardRes, allQuizRes, allFlashcardRes, srsRes, allQuizWithChapters] =
+  const [, flashcardRes, allQuizRes, allFlashcardRes, srsRes, allQuizWithChapters, campaignRes] =
     await Promise.all([
       supabase
         .from("quiz_results")
@@ -76,20 +76,16 @@ export default async function DashboardPage() {
         .from("quiz_results")
         .select("score, chapter")
         .eq("user_id", user.id),
+      // Campaign progress
+      supabase
+        .from("campaign_progress")
+        .select("lesson_id, completed")
+        .eq("user_id", user.id),
     ]);
 
-  const todayQuizzes = quizRes.data || [];
   const todayCards = flashcardRes.data || [];
   const cardsReviewedToday = todayCards.length;
   const cardsDue = srsRes.count || 0;
-
-  const avgQuizScore =
-    todayQuizzes.length > 0
-      ? Math.round(
-          todayQuizzes.reduce((sum, q) => sum + (q.score || 0), 0) /
-            todayQuizzes.length
-        )
-      : null;
 
   // Calculate streak
   const activityDates = new Set<string>();
@@ -152,19 +148,6 @@ export default async function DashboardPage() {
     };
   });
 
-  // Find weakest domain
-  const scoredDomains = domainScores.filter((d) => d.score > 0);
-  const weakest = scoredDomains.length > 0
-    ? scoredDomains.reduce((min, d) => (d.score < min.score ? d : min), scoredDomains[0])
-    : null;
-
-  // Find the first chapter for the weakest domain
-  const weakestChapter = weakest
-    ? Number(
-        Object.entries(chapterDomains).find(([, d]) => d === weakest.domain)?.[0]
-      ) || undefined
-    : undefined;
-
   // Calculate chapters mastered (avg score >= 80)
   const chapterScoreMap: Record<number, { total: number; count: number }> = {};
   for (const q of allQuizWithChapters.data || []) {
@@ -184,298 +167,278 @@ export default async function DashboardPage() {
     ? allScores.reduce((a, b) => a + b, 0) / allScores.length
     : 0;
   const coveragePercent = (Object.keys(chapterScoreMap).length / 20) * 100;
-  // Approximate SRS retention (cards reviewed / total due+reviewed * 100)
   const totalCards = allFlashcardRes.data?.length || 0;
   const srsRetention = totalCards > 0
     ? Math.min(100, Math.round(((totalCards - cardsDue) / Math.max(totalCards, 1)) * 100))
     : 0;
 
-  // Determine continue studying link
-  const hasCardsDue = cardsDue > 0;
-  const hasStudiedToday = todayQuizzes.length > 0 || cardsReviewedToday > 0;
-  const continueLink = hasCardsDue ? "/flashcards" : "/quiz";
-  const continueLabel = hasCardsDue ? "Review Flashcards" : "Take a Quiz";
-  const continueDescription = hasCardsDue
-    ? `You have ${cardsDue} flashcard${cardsDue !== 1 ? "s" : ""} waiting for review`
-    : hasStudiedToday
-    ? "Keep the momentum going with a quiz"
-    : "Start studying with a practice quiz";
+  const examReadiness = Math.round(
+    overallQuizAvg * 0.25 +
+    srsRetention * 0.25 +
+    overallQuizAvg * 0.2 +
+    0 * 0.15 +
+    coveragePercent * 0.15
+  );
 
-  // Daily focus actions
-  const focusActions = [];
-  if (cardsDue > 0) {
-    focusActions.push({ label: `Review ${cardsDue} cards`, href: "/flashcards" });
-  }
-  if (weakestChapter) {
-    focusActions.push({ label: `Study Ch ${weakestChapter}`, href: `/chapters/${weakestChapter}` });
-  }
-  focusActions.push({ label: "Practice quiz", href: "/quiz" });
-  // Limit to 3
-  const dailyFocus = focusActions.slice(0, 3);
+  // Overall mastery %
+  const overallMastery = allScores.length > 0 ? Math.round(overallQuizAvg) : 0;
 
-  const featureCards = [
-    {
-      href: "/campaign",
-      icon: (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-        </svg>
-      ),
-      title: "Campaign",
-      description: "Guided zero-to-ready",
-      gradient: "from-rose-500 to-pink-500",
-    },
-    {
-      href: "/coach",
-      icon: (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-        </svg>
-      ),
-      title: "AI Coach",
-      description: "Ask anything",
-      gradient: "from-indigo-500 to-violet-500",
-    },
-    {
-      href: "/quiz",
-      icon: (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-        </svg>
-      ),
-      title: "Quiz",
-      description: "Exam-style practice",
-      gradient: "from-green-500 to-emerald-500",
-    },
-    {
-      href: "/flashcards",
-      icon: (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L12 12.75 6.429 9.75m11.142 0l4.179 2.25-9.75 5.25-9.75-5.25 4.179-2.25" />
-        </svg>
-      ),
-      title: "Flashcards",
-      description: "Spaced repetition",
-      gradient: "from-blue-500 to-cyan-500",
-    },
-    {
-      href: "/anatomy",
-      icon: (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-        </svg>
-      ),
-      title: "Anatomy",
-      description: "Interactive explorer",
-      gradient: "from-teal-500 to-emerald-500",
-    },
-    {
-      href: "/scenarios",
-      icon: (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-        </svg>
-      ),
-      title: "Scenarios",
-      description: "Client program design",
-      gradient: "from-fuchsia-500 to-purple-500",
-    },
-  ];
+  // Campaign: find next incomplete lesson
+  const completedLessonIds = new Set(
+    (campaignRes.data || [])
+      .filter((p) => p.completed)
+      .map((p) => p.lesson_id)
+  );
+  const curriculum = getCurriculum();
+  const allLessons = getAllLessons();
+  const totalLessons = allLessons.length;
+  const completedLessonsCount = completedLessonIds.size;
+  const allComplete = totalLessons > 0 && completedLessonsCount >= totalLessons;
+  const hasCampaignStarted = completedLessonsCount > 0;
+
+  // Find the next incomplete lesson + its unit
+  let nextLesson: { id: string; title: string } | null = null;
+  let nextLessonUnit: { id: string; title: string } | null = null;
+  let unitProgress = 0;
+  let unitTotal = 0;
+
+  for (const unit of curriculum) {
+    let unitCompleted = 0;
+    let unitLessons = 0;
+    let foundInUnit = false;
+    for (const stage of unit.stages) {
+      for (const lesson of stage.lessons) {
+        unitLessons++;
+        if (completedLessonIds.has(lesson.id)) {
+          unitCompleted++;
+        } else if (!nextLesson) {
+          nextLesson = { id: lesson.id, title: lesson.title };
+          nextLessonUnit = { id: unit.id, title: unit.title };
+          foundInUnit = true;
+        }
+      }
+    }
+    if (foundInUnit || (!nextLesson && unitLessons > 0)) {
+      unitProgress = unitCompleted;
+      unitTotal = unitLessons;
+    }
+    if (foundInUnit) break;
+  }
+
+  const unitProgressPercent = unitTotal > 0 ? Math.round((unitProgress / unitTotal) * 100) : 0;
+
+  // First name only
+  const firstName = profile?.display_name
+    ? profile.display_name.split(" ")[0]
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-950 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-3xl mx-auto space-y-6">
 
-        {/* 1. Header — Greeting + Exam Countdown + Logout */}
-        <div className="flex justify-between items-start">
-          <div>
-            <Greeting displayName={profile?.display_name} />
-            <p className="text-gray-400 mt-1.5 text-sm sm:text-base">
-              {daysUntilExam !== null ? (
-                <>
-                  <span className="font-semibold text-blue-400">{daysUntilExam}</span>
-                  {" "}days until your exam
-                </>
-              ) : (
-                "Your NASM study dashboard"
+        {/* Header Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {streak > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                <span className="text-amber-400 text-sm">&#x1F525;</span>
+                <span className="text-amber-400 text-sm font-semibold">Day {streak}</span>
+              </div>
+            )}
+            <h1 className="text-xl sm:text-2xl font-bold text-white">
+              {firstName ? `Hey, ${firstName}` : "Welcome back"}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* Mini exam readiness */}
+            <div className="flex items-center gap-3">
+              <div className="relative w-10 h-10">
+                <svg viewBox="0 0 36 36" className="w-10 h-10 -rotate-90">
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="rgb(31, 41, 55)" strokeWidth="3" />
+                  <circle
+                    cx="18" cy="18" r="15" fill="none"
+                    stroke={examReadiness >= 70 ? "#22c55e" : examReadiness >= 50 ? "#f59e0b" : "#ef4444"}
+                    strokeWidth="3" strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 15}
+                    strokeDashoffset={2 * Math.PI * 15 * (1 - examReadiness / 100)}
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">
+                  {examReadiness}
+                </span>
+              </div>
+              {daysUntilExam !== null && (
+                <div className="hidden sm:block text-right">
+                  <div className="text-xs text-gray-500">Exam in</div>
+                  <div className="text-sm font-semibold text-white">{daysUntilExam}d</div>
+                </div>
               )}
-            </p>
-          </div>
-          <LogoutButton />
-        </div>
-
-        {/* 2. Exam Readiness Badge */}
-        <div className="bg-gray-900/60 border border-gray-800/60 rounded-3xl p-6 sm:p-8">
-          <h2 className="text-center text-sm font-medium uppercase tracking-wider text-gray-500 mb-2">
-            Exam Readiness
-          </h2>
-          <ExamReadinessBadge
-            quizAvg={overallQuizAvg}
-            srsRetention={srsRetention}
-            practiceExamScores={overallQuizAvg}
-            scenarioAccuracy={0}
-            coveragePercent={coveragePercent}
-            weakestDomain={weakest?.label}
-            weakestChapter={weakestChapter}
-          />
-        </div>
-
-        {/* 3. Daily Focus Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <span className="text-sm font-medium text-gray-500 uppercase tracking-wider shrink-0">
-            Today
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {dailyFocus.map((action, i) => (
-              <Link
-                key={i}
-                href={action.href}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800/70 border border-gray-700/50 text-sm text-gray-200 hover:bg-gray-700/70 hover:border-gray-600 transition-all duration-200"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                {action.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* 4. Quick Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5 text-center">
-            <div className="text-3xl font-bold text-amber-400">{streak}</div>
-            <div className="text-xs text-gray-500 mt-1.5 font-medium">Day Streak</div>
-          </div>
-          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5 text-center">
-            <div className="text-3xl font-bold text-blue-400">{cardsDue}</div>
-            <div className="text-xs text-gray-500 mt-1.5 font-medium">Cards Due</div>
-          </div>
-          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5 text-center">
-            <div className="text-3xl font-bold text-green-400">
-              {avgQuizScore !== null ? `${avgQuizScore}%` : "--"}
             </div>
-            <div className="text-xs text-gray-500 mt-1.5 font-medium">Today&apos;s Score</div>
-          </div>
-          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5 text-center">
-            <div className="text-3xl font-bold text-purple-400">{chaptersMastered}</div>
-            <div className="text-xs text-gray-500 mt-1.5 font-medium">Chapters Mastered</div>
+            <LogoutButton />
           </div>
         </div>
 
-        {/* 5. Radar Chart — Domain Mastery */}
-        <div className="bg-gray-900/60 border border-gray-800/60 rounded-3xl p-6 sm:p-8">
-          <h2 className="text-center text-sm font-medium uppercase tracking-wider text-gray-500 mb-4">
+        {/* Hero: Continue Learning */}
+        <div className="relative overflow-hidden rounded-2xl border border-gray-800/60 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800/50">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+          <div className="relative p-6 sm:p-8">
+            {allComplete ? (
+              <>
+                <div className="text-center py-4">
+                  <div className="text-4xl mb-3">&#x1F389;</div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    You&apos;ve completed the curriculum!
+                  </h2>
+                  <p className="text-gray-400 text-sm">
+                    All {totalLessons} lessons done. Time to crush the exam.
+                  </p>
+                  <Link
+                    href="/campaign"
+                    className="inline-flex items-center gap-2 mt-5 px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold hover:from-green-400 hover:to-emerald-400 transition-all"
+                  >
+                    Review Curriculum
+                  </Link>
+                </div>
+              </>
+            ) : !hasCampaignStarted ? (
+              <>
+                <div className="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-2">
+                  Your Journey Begins
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                  Start the NASM Campaign
+                </h2>
+                <p className="text-gray-400 text-sm mb-5">
+                  A guided path from zero to exam-ready, one lesson at a time.
+                </p>
+                <Link
+                  href="/campaign"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold text-base hover:from-blue-400 hover:via-purple-400 hover:to-pink-400 transition-all shadow-lg shadow-purple-500/20"
+                >
+                  Start Your Journey
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-2">
+                  {nextLessonUnit?.title || "Continue Learning"}
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                  {nextLesson?.title || "Next Lesson"}
+                </h2>
+                <div className="flex items-center gap-3 mt-3 mb-5">
+                  <div className="flex-1 h-2 rounded-full bg-gray-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                      style={{ width: `${unitProgressPercent}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium tabular-nums shrink-0">
+                    {unitProgressPercent}%
+                  </span>
+                </div>
+                <Link
+                  href={nextLesson ? `/campaign/lesson/${nextLesson.id}` : "/campaign"}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold text-base hover:from-blue-400 hover:via-purple-400 hover:to-pink-400 transition-all shadow-lg shadow-purple-500/20"
+                >
+                  Continue
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Review Due (only if cards are due) */}
+        {cardsDue > 0 && (
+          <Link
+            href="/flashcards"
+            className="group flex items-center justify-between rounded-xl border border-gray-800/60 bg-gray-900/60 p-4 hover:border-blue-500/30 hover:bg-gray-900/80 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">&#x1F504;</span>
+              <span className="text-sm text-gray-200">
+                <span className="font-semibold text-white">{cardsDue}</span> card{cardsDue !== 1 ? "s" : ""} due for review
+              </span>
+            </div>
+            <span className="text-xs font-medium text-blue-400 group-hover:text-blue-300 transition-colors">
+              Review Now &rarr;
+            </span>
+          </Link>
+        )}
+
+        {/* Offline Exercise */}
+        <OfflineExercise />
+
+        {/* Quick Stats Row */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="rounded-xl bg-gray-900/40 border border-gray-800/40 p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-amber-400 tabular-nums">{streak}</div>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">Streak</div>
+          </div>
+          <div className="rounded-xl bg-gray-900/40 border border-gray-800/40 p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-blue-400 tabular-nums">{overallMastery}%</div>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">Mastery</div>
+          </div>
+          <div className="rounded-xl bg-gray-900/40 border border-gray-800/40 p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-green-400 tabular-nums">{chaptersMastered}</div>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">Chapters</div>
+          </div>
+          <div className="rounded-xl bg-gray-900/40 border border-gray-800/40 p-3 text-center">
+            <div className="text-lg sm:text-xl font-bold text-purple-400 tabular-nums">{cardsReviewedToday}</div>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">Reviewed</div>
+          </div>
+        </div>
+
+        {/* Radar Chart */}
+        <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5 sm:p-6">
+          <h2 className="text-center text-xs font-medium uppercase tracking-wider text-gray-500 mb-3">
             Domain Mastery
           </h2>
           <RadarWrapper domainScores={domainScores} />
-          <p className="text-center text-xs text-gray-600 mt-3">
-            Click a domain to start a targeted study session
+          <p className="text-center text-[10px] text-gray-600 mt-2">
+            Tap a domain to start a targeted study session
           </p>
         </div>
 
-        {/* Exam Mode Banner — visible within 14 days of exam */}
+        {/* Exam Mode Banner */}
         {daysUntilExam !== null && daysUntilExam <= 14 && (
           <Link
             href="/exam-mode"
             className="group relative block rounded-2xl p-px transition-all hover:scale-[1.01]"
           >
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="relative bg-gray-900 rounded-[15px] p-5 sm:p-6 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="shrink-0 w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <div className="relative bg-gray-900 rounded-[15px] p-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 6.75 6.75 0 009 4.5a.75.75 0 01.75.75c0 1.865.755 3.556 1.976 4.776A6.723 6.723 0 0015.362 5.214z" />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-0.5">
-                    {daysUntilExam <= 7 ? "Exam Mode Active" : "Exam Mode Available"}
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-bold text-white">
+                  <div className="text-xs font-semibold text-amber-400">
                     {daysUntilExam === 0
-                      ? "Exam Day is Today!"
-                      : daysUntilExam === 1
-                      ? "1 Day Until Your Exam"
-                      : `${daysUntilExam} Days Until Your Exam`}
-                  </h2>
-                  <p className="text-gray-400 text-sm mt-0.5">
-                    {daysUntilExam <= 7
-                      ? "Final review tools, weak chapter targeting, and practice exams"
-                      : "Prepare with focused review tools and countdown timer"}
+                      ? "Exam Day!"
+                      : `${daysUntilExam} day${daysUntilExam !== 1 ? "s" : ""} to exam`}
+                  </div>
+                  <p className="text-gray-400 text-xs mt-0.5">
+                    {daysUntilExam <= 7 ? "Final review mode" : "Focused review tools"}
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </div>
+              <svg className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </div>
           </Link>
         )}
 
-        {/* 6. Continue Studying CTA */}
-        <Link
-          href={continueLink}
-          className="group relative block rounded-2xl p-1"
-        >
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-75 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative bg-gray-900 rounded-xl p-6 sm:p-8 flex items-center justify-between gap-4">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-1">
-                Continue Studying
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white">
-                {continueLabel}
-              </h2>
-              <p className="text-gray-400 text-sm mt-1">
-                {continueDescription}
-              </p>
-            </div>
-            <div className="shrink-0 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                />
-              </svg>
-            </div>
-          </div>
-        </Link>
-
         <FunFactWrapper />
-
-        {/* 7. Feature Grid — 2x3 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-          {featureCards.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="group relative rounded-2xl p-px transition-all duration-300 hover:scale-[1.02]"
-            >
-              <div
-                className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-              />
-              <div className="relative bg-gray-900/80 rounded-2xl p-5 sm:p-6 h-full flex flex-col border border-gray-800/60 group-hover:border-transparent transition-colors">
-                <div className="text-gray-400 group-hover:text-white mb-3 transition-colors">
-                  {card.icon}
-                </div>
-                <h3 className="text-base font-semibold text-white">
-                  {card.title}
-                </h3>
-                <p className="text-gray-500 text-xs mt-1 leading-relaxed">
-                  {card.description}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
     </div>
   );

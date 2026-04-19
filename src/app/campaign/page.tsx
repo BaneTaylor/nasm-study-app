@@ -148,7 +148,29 @@ const lessonTypeIcon: Record<string, string> = {
   quiz: "📝",
   scenario: "🎭",
   review: "🔄",
+  offline: "📝",
+  feynman: "🧠",
 };
+
+const offlineExerciseIcons: Record<string, string> = {
+  write: "📝",
+  move: "🏃",
+  teach: "🗣️",
+  speak: "🎤",
+  "self-assess": "🔍",
+};
+
+function getOfflineIcon(lesson: Lesson): string {
+  if (lesson.type === "offline" && lesson.offlineExercise) {
+    return offlineExerciseIcons[lesson.offlineExercise.type] || "📝";
+  }
+  if (lesson.type === "feynman") return "🧠";
+  return lessonTypeIcon[lesson.type] || "📖";
+}
+
+function isOfflineType(type: string): boolean {
+  return type === "offline" || type === "feynman";
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -316,7 +338,7 @@ export default function CampaignPage() {
         <div className="sticky top-[72px] z-30 px-4 pt-2">
           <div className="max-w-2xl mx-auto">
             <Link
-              href="/campaign/lesson/u1-s2-l4"
+              href="/campaign/lesson/u1-s2-l5"
               className="flex items-center gap-2 px-4 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400 text-sm font-medium hover:bg-amber-500/20 transition-colors"
             >
               <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
@@ -432,6 +454,7 @@ export default function CampaignPage() {
                                     isNext={isNext}
                                     colors={colors}
                                     type={lesson.type}
+                                    lesson={lesson}
                                   />
                                   <div className="flex-1 min-w-0">
                                     <p
@@ -470,6 +493,7 @@ export default function CampaignPage() {
                                     isNext={false}
                                     colors={colors}
                                     type={lesson.type}
+                                    lesson={lesson}
                                   />
                                   <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-400">
@@ -492,6 +516,7 @@ export default function CampaignPage() {
                                     isNext={false}
                                     colors={colors}
                                     type={lesson.type}
+                                    lesson={lesson}
                                   />
                                   <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-600">
@@ -539,15 +564,26 @@ function LessonNode({
   isNext,
   colors,
   type,
+  lesson,
 }: {
   status: "completed" | "current" | "locked";
   isNext: boolean;
   colors: (typeof unitColors)[string];
   type: string;
+  lesson?: Lesson;
 }) {
+  const offline = isOfflineType(type);
+  const icon = lesson ? getOfflineIcon(lesson) : lessonTypeIcon[type] || "📖";
+
   if (status === "completed") {
     return (
-      <div className="relative z-10 w-10 h-10 rounded-full bg-green-500/20 border-2 border-green-500/40 flex items-center justify-center shrink-0">
+      <div
+        className={`relative z-10 w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0 ${
+          offline
+            ? "border-2 border-dashed border-green-500/40"
+            : "border-2 border-green-500/40"
+        }`}
+      >
         <svg
           className="w-5 h-5 text-green-400"
           fill="none"
@@ -566,18 +602,50 @@ function LessonNode({
   }
 
   if (status === "current") {
+    if (offline) {
+      return (
+        <div
+          className={`relative z-10 w-10 h-10 rounded-full bg-emerald-500/10 border-2 border-dashed border-emerald-500/40 flex items-center justify-center shrink-0 ${
+            isNext ? "ring-4 ring-emerald-500/30 animate-pulse" : ""
+          }`}
+        >
+          <span className="text-base">{icon}</span>
+        </div>
+      );
+    }
+
     return (
       <div
         className={`relative z-10 w-10 h-10 rounded-full ${colors.bg} border-2 ${colors.border} flex items-center justify-center shrink-0 ${
           isNext ? `ring-4 ${colors.dotRing} animate-pulse` : ""
         }`}
       >
-        <span className="text-base">{lessonTypeIcon[type] || "📖"}</span>
+        <span className="text-base">{icon}</span>
       </div>
     );
   }
 
   // Locked
+  if (offline) {
+    return (
+      <div className="relative z-10 w-10 h-10 rounded-full bg-gray-800/50 border-2 border-dashed border-gray-700 flex items-center justify-center shrink-0">
+        <svg
+          className="w-4 h-4 text-gray-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div className="relative z-10 w-10 h-10 rounded-full bg-gray-800 border-2 border-gray-700 flex items-center justify-center shrink-0">
       <svg
