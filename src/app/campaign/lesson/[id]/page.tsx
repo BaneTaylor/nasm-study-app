@@ -1526,7 +1526,7 @@ function OfflineMode({ lesson, onComplete }: { lesson: Lesson; onComplete: (scor
           const reader = res.body?.getReader();
           const dec = new TextDecoder();
           let full = "";
-          if (reader) { while (true) { const { done, value } = await reader.read(); if (done) break; for (const line of dec.decode(value).split("\n")) { if (line.startsWith("data: ") && line !== "data: [DONE]") full += line.slice(6); } } }
+          if (reader) { while (true) { const { done, value } = await reader.read(); if (done) break; for (const line of dec.decode(value).split("\n")) { if (line.startsWith("data: ") && line !== "data: [DONE]") { try { const parsed = JSON.parse(line.slice(6)); full += parsed.text || ""; } catch { full += line.slice(6); } } } } }
           setAiFeedback(full || "Great effort!");
         } else { const d = await res.json(); setAiFeedback(d.reply || d.response || "Great effort!"); }
       }
